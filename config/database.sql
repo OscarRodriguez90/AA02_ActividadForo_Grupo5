@@ -1,10 +1,6 @@
 CREATE DATABASE IF NOT EXISTS foro_completo CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE foro_completo;
 
--------------------------------------------------------
--- 1. TABLAS SIN FOREIGN KEYS
--------------------------------------------------------
-
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL,
@@ -35,10 +31,6 @@ CREATE TABLE attachments (
     file_path VARCHAR(300) NOT NULL,
     question_id INT DEFAULT NULL,
     answer_id INT DEFAULT NULL,
-    CONSTRAINT check_attachment_target CHECK (
-        (question_id IS NOT NULL AND answer_id IS NULL) OR 
-        (question_id IS NULL AND answer_id IS NOT NULL)
-    )
 ) ENGINE=InnoDB;
 
 CREATE TABLE likes (
@@ -47,10 +39,6 @@ CREATE TABLE likes (
     question_id INT DEFAULT NULL,
     answer_id INT DEFAULT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT check_like_target CHECK (
-        (question_id IS NOT NULL AND answer_id IS NULL) OR 
-        (question_id IS NULL AND answer_id IS NOT NULL)
-    )
 ) ENGINE=InnoDB;
 
 CREATE TABLE tags (
@@ -86,10 +74,6 @@ CREATE TABLE messages (
     content TEXT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
-
--------------------------------------------------------
--- 2. FOREIGN KEYS SIN CASCADE
--------------------------------------------------------
 
 ALTER TABLE questions
 ADD CONSTRAINT fk_questions_user
