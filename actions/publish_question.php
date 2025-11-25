@@ -38,11 +38,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 if ($_FILES['files']['error'][$i] === UPLOAD_ERR_OK) {
                     
                     $fileName = basename($_FILES['files']['name'][$i]);
-                    $targetFilePath = $uploadDir . time() . '_' . $fileName;
+                    $timestamp = time();
+                    $targetFilePath = $uploadDir . $timestamp . '_' . $fileName;
                     
                     if (move_uploaded_file($_FILES['files']['tmp_name'][$i], $targetFilePath)) {
                         
-                        $dbPath = 'uploads/' . time() . '_' . $fileName;
+                        $dbPath = 'uploads/' . $timestamp . '_' . $fileName;
                         
                         $sqlFile = "INSERT INTO tbl_archivos (ruta_archivo, id_publicacion) 
                                     VALUES (:ruta, :pub_id)";
