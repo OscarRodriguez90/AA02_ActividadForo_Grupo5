@@ -78,6 +78,24 @@ $respuestas = $stmtResp->fetchAll(PDO::FETCH_ASSOC);
                 <?= nl2br(htmlspecialchars($pregunta['contenido'])) ?>
             </div>
 
+            <?php 
+                $usuario_actual = 1; 
+                
+                if ($pregunta['id_autor'] == $usuario_actual): 
+            ?>
+                <div class="mt-3 text-right">
+                    <a href="editar_pregunta.php?id=<?= $pregunta['id'] ?>" class="btn btn-secondary btn-sm">
+                        ✏️ Editar
+                    </a>
+                    
+                    <a href="actions/delete_question.php?id=<?= $pregunta['id'] ?>" 
+                       class="btn btn-primary btn-sm"
+                       style="background: #dc3545; border-color: #dc3545;"
+                       onclick="return confirm('¿Estás seguro de que quieres borrar esta pregunta? Se borrarán también las respuestas.');">
+                        🗑️ Eliminar
+                    </a>
+                </div>
+            <?php endif; ?>
             <?php if (count($archivos) > 0): ?>
                 <div class="mt-3 p-3" style="background: rgba(0,0,0,0.2); border-radius: 8px;">
                     <h4>📎 Archivos Adjuntos:</h4>
