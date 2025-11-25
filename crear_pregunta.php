@@ -89,6 +89,6 @@ require_once './config/conexion.php';
             <p>&copy; 2025 Foro de Preguntas. Todos los derechos reservados.</p>
         </div>
     </footer>
-<script src="assets/js/main.js"></script>
+<script src="./assets/js/main.js"></script>
 </body>
 </html>
