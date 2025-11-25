@@ -64,7 +64,11 @@ CREATE TABLE IF NOT EXISTS tbl_mensajes_privados (
     fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )ENGINE=InnoDB;
 
-
+CREATE TABLE IF NOT EXISTS tbl_archivos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    ruta_archivo VARCHAR(300) NOT NULL,
+    id_publicacion INT NOT NULL
+) ENGINE=InnoDB;
 
 -- =====================================
 -- RELACIONES (FOREIGN KEYS)
@@ -114,6 +118,10 @@ ALTER TABLE tbl_mensajes_privados
 ALTER TABLE tbl_mensajes_privados
     ADD CONSTRAINT fk_mensajes_privados_receptor
     FOREIGN KEY (id_receptor) REFERENCES tbl_usuarios(id);
+
+ALTER TABLE tbl_archivos
+    ADD CONSTRAINT fk_archivos_publicacion
+    FOREIGN KEY (id_publicacion) REFERENCES tbl_publicaciones(id);
 
 
 
