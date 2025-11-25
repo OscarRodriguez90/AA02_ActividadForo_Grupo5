@@ -44,16 +44,14 @@ require_once './config/conexion.php';
                         <label for="title">Título de la pregunta</label>
                         <input type="text" 
                                id="title"
-                               name="title" 
-                               required 
+                               name="title"
                                placeholder="Ej: ¿Cómo soluciono un error de conexión en PHP?">
                     </div>
 
                     <div class="form-group">
                         <label for="description">Descripción detallada</label>
                         <textarea id="description"
-                                  name="description" 
-                                  required 
+                                  name="description"
                                   placeholder="Explica tu duda con el mayor detalle posible. Incluye código si es necesario..."
                                   rows="8"></textarea>
                     </div>
@@ -91,6 +89,6 @@ require_once './config/conexion.php';
             <p>&copy; 2025 Foro de Preguntas. Todos los derechos reservados.</p>
         </div>
     </footer>
-
+<script src="assets/js/main.js"></script>
 </body>
 </html>
