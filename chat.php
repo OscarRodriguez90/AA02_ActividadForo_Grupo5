@@ -5,9 +5,6 @@ require_once 'config/conexion.php';
 // --------------------------------------------------------------------------------
 // 1. VERIFICACIÓN DE LOGIN (SIMULACIÓN)
 // --------------------------------------------------------------------------------
-// Este bloque comprueba si el usuario ha iniciado sesión.
-// Si NO está logueado (!isset), mostramos una lista de usuarios para "simular" el login.
-// En un entorno real, aquí redirigirías al login.php.
 // HARDCODE: Simular usuario logueado para ver la interfaz
 if (!isset($_SESSION['user_id'])) {
     $_SESSION['user_id'] = 1;
@@ -23,7 +20,7 @@ if (!isset($_SESSION['user_id'])) {
     
     // Obtenemos todos los usuarios para mostrarlos en la pantalla de selección
     try {
-        $stmt = $conn->query("SELECT * FROM users");
+        $stmt = $conn->query("SELECT * FROM tbl_usuarios");
         $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) { $users = []; }
     ?>
@@ -43,7 +40,7 @@ if (!isset($_SESSION['user_id'])) {
                 <div class="user-btn-container">
                     <?php foreach ($users as $u): ?>
                         <a href="?login_as=<?= $u['id'] ?>" class="btn btn-primary user-btn">
-                            <?= htmlspecialchars($u['username']) ?>
+                            <?= htmlspecialchars($u['nombre_usuario']) ?>
                         </a>
                     <?php endforeach; ?>
                 </div>
@@ -67,19 +64,26 @@ $chat_with_id = isset($_GET['chat_with']) ? (int)$_GET['chat_with'] : null;
 // 3. OBTENER LISTA DE AMIGOS
 // --------------------------------------------------------------------------------
 // Consultamos la base de datos para obtener SOLO los usuarios que son amigos.
-// Buscamos en la tabla 'friendships' donde el usuario actual sea user1 O user2.
+// Buscamos en la tabla 'tbl_amistades' donde el usuario actual sea id_usuario1 O id_usuario2.
 try {
     $stmt = $conn->prepare("
-        SELECT u.id, u.username 
-        FROM users u
-        JOIN friendships f ON (f.user1_id = u.id OR f.user2_id = u.id)
-        WHERE (f.user1_id = :uid OR f.user2_id = :uid) AND u.id != :uid
+        SELECT u.id, u.nombre_usuario as username 
+        FROM tbl_usuarios u
+        JOIN tbl_amistades f ON (f.id_usuario1 = u.id OR f.id_usuario2 = u.id)
+        WHERE (f.id_usuario1 = :uid OR f.id_usuario2 = :uid) 
+          AND u.id != :uid
+          AND f.estado = 'aceptada'
     ");
     $stmt->bindParam(':uid', $my_id);
     $stmt->execute();
     $friends = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     $friends = [];
+}
+
+// HARDCODE: Si no hay amigos en la BD, simulamos uno para probar la interfaz (ID 2)
+if (empty($friends)) {
+    $friends[] = ['id' => 2, 'username' => 'Amigo Ficticio'];
 }
 
 // --------------------------------------------------------------------------------
@@ -113,8 +117,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['content']) && $chat_w
     
     if (!empty($content)) {
         try {
-            // Insertamos el mensaje en la tabla 'messages'
-            $stmt = $conn->prepare("INSERT INTO messages (sender_id, receiver_id, content) VALUES (:sender_id, :receiver_id, :content)");
+            // Insertamos el mensaje en la tabla 'tbl_mensajes_privados'
+            $stmt = $conn->prepare("INSERT INTO tbl_mensajes_privados (id_emisor, id_receptor, mensaje) VALUES (:sender_id, :receiver_id, :content)");
             $stmt->bindParam(':sender_id', $my_id);
             $stmt->bindParam(':receiver_id', $chat_with_id);
             $stmt->bindParam(':content', $content);
@@ -141,12 +145,12 @@ if ($chat_with_id) {
         // (Yo soy emisor Y él es receptor) O (Él es emisor Y yo soy receptor)
         // Ordenados por fecha ascendente (más antiguos primero)
         $stmt = $conn->prepare("
-            SELECT m.*, u.username as sender_name 
-            FROM messages m 
-            JOIN users u ON m.sender_id = u.id
-            WHERE (sender_id = :current_id AND receiver_id = :other_id) 
-               OR (sender_id = :other_id AND receiver_id = :current_id)
-            ORDER BY created_at ASC
+            SELECT m.*, u.nombre_usuario as sender_name, m.mensaje as content, m.fecha as created_at, m.id_emisor as sender_id
+            FROM tbl_mensajes_privados m 
+            JOIN tbl_usuarios u ON m.id_emisor = u.id
+            WHERE (id_emisor = :current_id AND id_receptor = :other_id) 
+               OR (id_emisor = :other_id AND id_receptor = :current_id)
+            ORDER BY fecha ASC
         ");
         $stmt->bindParam(':current_id', $my_id);
         $stmt->bindParam(':other_id', $chat_with_id);
