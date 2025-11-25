@@ -2,14 +2,23 @@
 session_start();
 require_once 'config/conexion.php';
 
+$busqueda = isset($_GET['q']) ? trim($_GET['q']) : '';
+$params = [];
+
 $sql = "SELECT p.*, u.nombre_usuario 
         FROM tbl_publicaciones p 
         LEFT JOIN tbl_usuarios u ON p.id_autor = u.id 
-        WHERE p.id_padre IS NULL 
-        ORDER BY p.fecha DESC";
+        WHERE p.id_padre IS NULL";
+
+if (!empty($busqueda)) {
+    $sql .= " AND p.titulo LIKE :busqueda";
+    $params[':busqueda'] = "%" . $busqueda . "%";
+}
+
+$sql .= " ORDER BY p.fecha DESC";
 
 $stmt = $conn->prepare($sql);
-$stmt->execute();
+$stmt->execute($params);
 $preguntas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
@@ -41,11 +50,31 @@ $preguntas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <div class="container">
         
-        <div class="flex flex-between mb-4" style="align-items: center; margin-top: 2rem;">
-            <h1>Últimas Preguntas</h1>
-            <a href="crear_pregunta.php" class="btn btn-primary hover-lift">
-                + Hacer Pregunta
-            </a>
+        <div class="flex flex-between mb-4" style="align-items: center; margin-top: 2rem; flex-wrap: wrap; gap: 1rem;">
+            <h1>
+                <?php if($busqueda): ?>
+                    Resultados para: "<?= htmlspecialchars($busqueda) ?>"
+                <?php else: ?>
+                    Últimas Preguntas
+                <?php endif; ?>
+            </h1>
+            
+            <div class="flex gap-2">
+                <form action="index.php" method="GET" style="display: flex; gap: 0.5rem;">
+                    <input type="text" name="q" placeholder="Buscar por título..." 
+                           value="<?= htmlspecialchars($busqueda) ?>"
+                           style="padding: 8px; width: 250px;">
+                    <button type="submit" class="btn btn-secondary">🔍</button>
+                    
+                    <?php if($busqueda): ?>
+                        <a href="index.php" class="btn btn-ghost" title="Limpiar búsqueda">✖</a>
+                    <?php endif; ?>
+                </form>
+
+                <a href="crear_pregunta.php" class="btn btn-primary hover-lift">
+                    + Hacer Pregunta
+                </a>
+            </div>
         </div>
 
         <?php if (count($preguntas) > 0): ?>
@@ -77,19 +106,18 @@ $preguntas = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <?php endforeach; ?>
             </div>
         <?php else: ?>
-            <div class="alert alert-info text-center">
-                Aún no hay preguntas en el foro. ¡Sé el primero en participar!
+            <div class="alert alert-warning text-center">
+                <?php if($busqueda): ?>
+                    No encontramos preguntas que coincidan con "<strong><?= htmlspecialchars($busqueda) ?></strong>".
+                    <br><a href="index.php">Ver todas las preguntas</a>
+                <?php else: ?>
+                    Aún no hay preguntas en el foro. ¡Sé el primero en participar!
+                <?php endif; ?>
             </div>
         <?php endif; ?>
 
     </div>
-
-    <footer>
-        <div class="container">
-            <p>&copy; 2025 Foro de Preguntas.</p>
-        </div>
-    </footer>
-
-    <script src="./assets/js/main.js"></script>
+    
+    <script src="assets/js/main.js"></script>
 </body>
 </html>
