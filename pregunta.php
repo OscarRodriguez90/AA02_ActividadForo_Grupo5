@@ -9,6 +9,7 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 
 $id_pregunta = $_GET['id'];
 
+// 1. Obtener la pregunta principal
 $sql = "SELECT p.*, u.nombre_usuario 
         FROM tbl_publicaciones p 
         JOIN tbl_usuarios u ON p.id_autor = u.id 
@@ -22,11 +23,13 @@ if (!$pregunta) {
     exit;
 }
 
+// 2. Obtener archivos de la pregunta principal
 $sqlArchivos = "SELECT * FROM tbl_archivos WHERE id_publicacion = :id";
 $stmtArchivos = $conn->prepare($sqlArchivos);
 $stmtArchivos->execute([':id' => $id_pregunta]);
 $archivos = $stmtArchivos->fetchAll(PDO::FETCH_ASSOC);
 
+// 3. Obtener las respuestas
 $sqlResp = "SELECT p.*, u.nombre_usuario 
             FROM tbl_publicaciones p 
             JOIN tbl_usuarios u ON p.id_autor = u.id 
@@ -103,6 +106,14 @@ $respuestas = $stmtResp->fetchAll(PDO::FETCH_ASSOC);
 
         <?php if (count($respuestas) > 0): ?>
             <?php foreach ($respuestas as $respuesta): ?>
+                
+                <?php
+                    $sqlArchivosResp = "SELECT * FROM tbl_archivos WHERE id_publicacion = :id_resp";
+                    $stmtArchivosResp = $conn->prepare($sqlArchivosResp);
+                    $stmtArchivosResp->execute([':id_resp' => $respuesta['id']]);
+                    $archivosResp = $stmtArchivosResp->fetchAll(PDO::FETCH_ASSOC);
+                ?>
+
                 <div class="card">
                     <div class="card-header">
                         <span class="text-orange" style="font-weight: bold;"><?= htmlspecialchars($respuesta['nombre_usuario']) ?></span> respondió:
@@ -111,6 +122,28 @@ $respuestas = $stmtResp->fetchAll(PDO::FETCH_ASSOC);
                     <div class="card-content">
                         <?= nl2br(htmlspecialchars($respuesta['contenido'])) ?>
                     </div>
+
+                    <?php if (count($archivosResp) > 0): ?>
+                        <div class="mt-3 p-2" style="background: rgba(255,255,255,0.05); border-radius: 6px;">
+                            <strong style="font-size: 0.9rem; color: var(--color-orange);">Adjuntos:</strong>
+                            <div class="flex gap-2 mt-1" style="flex-wrap: wrap;">
+                                <?php foreach ($archivosResp as $arch): ?>
+                                    <?php 
+                                        $ext = pathinfo($arch['ruta_archivo'], PATHINFO_EXTENSION);
+                                        if(in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'gif', 'webp'])): 
+                                    ?>
+                                        <a href="<?= $arch['ruta_archivo'] ?>" target="_blank">
+                                            <img src="<?= $arch['ruta_archivo'] ?>" style="height: 100px; border-radius: 4px; border: 1px solid #555;">
+                                        </a>
+                                    <?php else: ?>
+                                        <a href="<?= $arch['ruta_archivo'] ?>" class="btn btn-secondary btn-sm" target="_blank">
+                                            📄 <?= $ext ?>
+                                        </a>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    <?php endif; ?>
                     </div>
             <?php endforeach; ?>
         <?php else: ?>
