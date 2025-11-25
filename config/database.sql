@@ -12,10 +12,9 @@ CREATE TABLE IF NOT EXISTS tbl_usuarios (
     nombre_usuario VARCHAR(50) NOT NULL UNIQUE,
     nombre_real VARCHAR(100) NOT NULL,
     email VARCHAR(150) NOT NULL UNIQUE,
-    contraseña VARCHAR(255) NOT NULL
+    contraseña VARCHAR(255) NOT NULL,
     fecha_nacimiento DATE NOT NULL,
-    genero ENUM('Masculino', 'Femenino', 'Otro') NOT NULL,
-    
+    genero ENUM('Masculino', 'Femenino', 'Otro') NOT NULL
 )ENGINE=InnoDB;
 
 -- Tabla de publicaciones (preguntas o respuestas)
