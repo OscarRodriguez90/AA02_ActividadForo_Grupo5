@@ -64,26 +64,30 @@ require_once 'actions/perfil_actions.php';
                     </p>
                 </div>
                 <div class="actions">
-                    <?php if ($friendship_status === 'aceptada'): ?>
-                        <!-- Ya son amigos: mostrar botón de chat -->
-                        <span class="badge">✓ Amigos</span>
-                        <a href="chat.php?chat_with=<?= $profile_id ?>" class="btn btn-primary">
-                            💬 Chatear
-                        </a>
-                    <?php elseif ($friendship_status === 'pendiente'): ?>
-                        <!-- Solicitud pendiente -->
-                        <?php if ($am_i_sender): ?>
-                            <span class="tag">Solicitud enviada</span>
+                    <?php if ($profile_id !== $my_id): ?>
+                        <?php if ($friendship_status === 'aceptada'): ?>
+                            <!-- Ya son amigos: mostrar botón de chat -->
+                            <span class="badge">✓ Amigos</span>
+                            <a href="chat.php?chat_with=<?= $profile_id ?>" class="btn btn-primary">
+                                💬 Chatear
+                            </a>
+                        <?php elseif ($friendship_status === 'pendiente'): ?>
+                            <!-- Solicitud pendiente -->
+                            <?php if ($am_i_sender): ?>
+                                <span class="tag">Solicitud enviada</span>
+                            <?php else: ?>
+                                <span class="tag">Solicitud recibida (revisar en Amigos)</span>
+                            <?php endif; ?>
                         <?php else: ?>
-                            <span class="tag">Solicitud recibida (revisar en Amigos)</span>
+                            <!-- No son amigos: mostrar botón para enviar solicitud -->
+                            <form method="POST" style="display: inline;">
+                                <button type="submit" name="send_friend_request" class="btn btn-secondary">
+                                    + Añadir como amigo
+                                </button>
+                            </form>
                         <?php endif; ?>
                     <?php else: ?>
-                        <!-- No son amigos: mostrar botón para enviar solicitud -->
-                        <form method="POST" style="display: inline;">
-                            <button type="submit" name="send_friend_request" class="btn btn-secondary">
-                                + Añadir como amigo
-                            </button>
-                        </form>
+                        <span class="badge">Mi Perfil</span>
                     <?php endif; ?>
                 </div>
             </div>

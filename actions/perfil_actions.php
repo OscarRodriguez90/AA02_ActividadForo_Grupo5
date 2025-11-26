@@ -19,18 +19,21 @@ $error = '';
 // --------------------------------------------------------------------------------
 // VERIFICAR QUE SE RECIBIÓ UN ID VÁLIDO
 // --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+// VERIFICAR QUE SE RECIBIÓ UN ID VÁLIDO
+// --------------------------------------------------------------------------------
+// Si no hay ID, mostrar mi propio perfil
 if (!isset($_GET['id']) || empty($_GET['id'])) {
-    header('Location: ../friends.php');
-    exit;
+    $profile_id = $my_id;
+} else {
+    $profile_id = (int)$_GET['id'];
 }
 
-$profile_id = (int)$_GET['id'];
-
-// No permitir ver el propio perfil
-if ($profile_id === $my_id) {
-    header('Location: ../friends.php');
-    exit;
-}
+// Permitir ver el propio perfil para testeo
+// if ($profile_id === $my_id) {
+//     header('Location: ./friends.php');
+//     exit;
+// }
 
 // --------------------------------------------------------------------------------
 // ACCIÓN: ENVIAR SOLICITUD DE AMISTAD
@@ -186,9 +189,17 @@ function getUserPosts($conn, $user_id, $limit = 5) {
 $user = getUserInfo($conn, $profile_id);
 
 // Si no existe el usuario, redirigir
+// Si no existe el usuario, usar datos mockeados para desarrollo
 if (!$user) {
-    header('Location: ../friends.php');
-    exit;
+    // MOCK DATA
+    $user = [
+        'id' => $profile_id,
+        'nombre_usuario' => 'Usuario_Test_' . $profile_id,
+        'nombre_real' => 'Nombre Real Test',
+        'email' => 'test' . $profile_id . '@example.com'
+    ];
+    // header('Location: ../friends.php');
+    // exit;
 }
 
 // Verificar estado de amistad
