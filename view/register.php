@@ -45,60 +45,131 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Registro de Usuario</title>
-    <link rel="stylesheet" href="../estilos/style.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        input[type="date"] {
+            width: 100%;
+            padding: var(--spacing-sm);
+            background: rgba(26, 26, 26, 0.8);
+            border: 2px solid rgba(255, 107, 53, 0.2);
+            border-radius: var(--radius-md);
+            color: var(--color-white);
+            font-family: var(--font-primary);
+            font-size: 1rem;
+            transition: all var(--transition-normal);
+        }
+        input[type="date"]:focus {
+            outline: none;
+            border-color: var(--color-orange);
+            box-shadow: 0 0 0 3px var(--color-orange-glow);
+            background: rgba(26, 26, 26, 0.95);
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+        }
+    </style>
     <script src="../js/validaciones.js"></script>
 </head>
 <body>
 
-<?php if ($exito): ?>
-<div style="max-width:400px; margin:50px auto; text-align:center; background:#fff; padding:20px; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.1);">
-    <h2>¡Registro completado con éxito!</h2>
-    <p>Ahora puedes iniciar sesión con tus credenciales.</p>
-    <a href="login.php"><button>Ir a Login</button></a>
+<div class="container" style="max-width: 600px; margin-top: 3rem; margin-bottom: 3rem;">
+    <div class="card">
+        <?php if ($exito): ?>
+            <div style="text-align:center; padding: 2rem;">
+                <h2 style="color: var(--color-orange); margin-bottom: 1rem;">¡Registro completado con éxito!</h2>
+                <p style="margin-bottom: 2rem;">Ahora puedes iniciar sesión con tus credenciales.</p>
+                <a href="login.php" class="btn btn-primary">Ir a Login</a>
+            </div>
+        <?php else: ?>
+            <h1 style="text-align: center; margin-bottom: 2rem;">Registro de Usuario</h1>
+            
+            <?php if(!empty($errores)): ?>
+                <div class="alert alert-error" style="margin-bottom: 1.5rem;">
+                    <?php foreach($errores as $e): ?>
+                        <p style="margin: 0.5rem 0;"><?= htmlspecialchars($e) ?></p>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+
+            <form method="post" action="register.php" id="formRegistro">
+                <div class="form-group">
+                    <label for="username">Nombre de usuario</label>
+                    <input type="text" id="username" name="username" 
+                           placeholder="Nombre de usuario" 
+                           value="<?= isset($username)?htmlspecialchars($username):'' ?>">
+                    <div id="error-username" class="mensaje-error" style="color: #ef4444; font-size: 0.85rem; margin-top: 0.5rem;">
+                        <?= in_array("Este username ya está en uso.", $errores) ? "Este username ya está en uso." : "" ?>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="nombre">Nombre</label>
+                    <input type="text" id="nombre" name="nombre" 
+                           placeholder="Nombre" 
+                           value="<?= isset($nombre)?htmlspecialchars($nombre):'' ?>">
+                    <div id="error-nombre" class="mensaje-error" style="color: #ef4444; font-size: 0.85rem; margin-top: 0.5rem;"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="apellidos">Apellidos</label>
+                    <input type="text" id="apellidos" name="apellidos" 
+                           placeholder="Apellidos" 
+                           value="<?= isset($apellidos)?htmlspecialchars($apellidos):'' ?>">
+                    <div id="error-apellidos" class="mensaje-error" style="color: #ef4444; font-size: 0.85rem; margin-top: 0.5rem;"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Correo electrónico</label>
+                    <input type="email" id="email" name="email" 
+                           placeholder="Correo electrónico" 
+                           value="<?= isset($email)?htmlspecialchars($email):'' ?>">
+                    <div id="error-email" class="mensaje-error" style="color: #ef4444; font-size: 0.85rem; margin-top: 0.5rem;">
+                        <?= in_array("Esta dirección de correo electrónico ya está en uso.", $errores) ? "Esta dirección de correo electrónico ya está en uso." : "" ?>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="fecha_nacimiento">Fecha de nacimiento</label>
+                    <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" 
+                           value="<?= isset($fecha_nacimiento)?htmlspecialchars($fecha_nacimiento):'' ?>">
+                    <div id="error-fecha_nacimiento" class="mensaje-error" style="color: #ef4444; font-size: 0.85rem; margin-top: 0.5rem;"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="genero">Género</label>
+                    <select id="genero" name="genero">
+                        <option value="">Selecciona tu género</option>
+                        <option value="hombre" <?= (isset($genero) && $genero==="hombre")?"selected":"" ?>>Hombre</option>
+                        <option value="mujer" <?= (isset($genero) && $genero==="mujer")?"selected":"" ?>>Mujer</option>
+                        <option value="otro" <?= (isset($genero) && $genero==="otro")?"selected":"" ?>>Otro</option>
+                    </select>
+                    <div id="error-genero" class="mensaje-error" style="color: #ef4444; font-size: 0.85rem; margin-top: 0.5rem;"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" name="password" placeholder="Contraseña">
+                    <div id="error-password" class="mensaje-error" style="color: #ef4444; font-size: 0.85rem; margin-top: 0.5rem;"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmar_password">Confirmar contraseña</label>
+                    <input type="password" id="confirmar_password" name="confirmar_password" 
+                           placeholder="Confirmar contraseña">
+                    <div id="error-confirmar_password" class="mensaje-error" style="color: #ef4444; font-size: 0.85rem; margin-top: 0.5rem;"></div>
+                </div>
+
+                <button type="submit" id="btnEnviar" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+                    Registrarse
+                </button>
+            </form>
+
+            <p style="text-align: center; margin-top: 1.5rem; color: var(--color-gray);">
+                ¿Ya tienes cuenta? <a href="login.php">Inicia sesión aquí</a>
+            </p>
+        <?php endif; ?>
+    </div>
 </div>
-<?php else: ?>
 
-<form method="post" action="register.php" id="formRegistro">
-    <input type="text" id="username" name="username" placeholder="Nombre de usuario" value="<?= isset($username)?htmlspecialchars($username):'' ?>">
-    <div id="error-username" class="mensaje-error"><?= in_array("Este username ya está en uso.", $errores) ? "Este username ya está en uso." : "" ?></div>
-
-    <input type="text" id="nombre" name="nombre" placeholder="Nombre" value="<?= isset($nombre)?htmlspecialchars($nombre):'' ?>">
-    <div id="error-nombre" class="mensaje-error"></div>
-
-    <input type="text" id="apellidos" name="apellidos" placeholder="Apellidos" value="<?= isset($apellidos)?htmlspecialchars($apellidos):'' ?>">
-    <div id="error-apellidos" class="mensaje-error"></div>
-
-    <input type="email" id="email" name="email" placeholder="Correo electrónico" value="<?= isset($email)?htmlspecialchars($email):'' ?>">
-    <div id="error-email" class="mensaje-error"><?= in_array("Esta dirección de correo electrónico ya está en uso.", $errores) ? "Esta dirección de correo electrónico ya está en uso." : "" ?></div>
-
-    <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" value="<?= isset($fecha_nacimiento)?htmlspecialchars($fecha_nacimiento):'' ?>">
-    <div id="error-fecha_nacimiento" class="mensaje-error"></div>
-
-    <select id="genero" name="genero">
-        <option value="">Selecciona tu género</option>
-        <option value="hombre" <?= (isset($genero) && $genero==="hombre")?"selected":"" ?>>Hombre</option>
-        <option value="mujer" <?= (isset($genero) && $genero==="mujer")?"selected":"" ?>>Mujer</option>
-        <option value="otro" <?= (isset($genero) && $genero==="otro")?"selected":"" ?>>Otro</option>
-    </select>
-    <div id="error-genero" class="mensaje-error"></div>
-
-    <input type="password" id="password" name="password" placeholder="Contraseña">
-    <div id="error-password" class="mensaje-error"></div>
-
-    <input type="password" id="confirmar_password" name="confirmar_password" placeholder="Confirmar contraseña">
-    <div id="error-confirmar_password" class="mensaje-error"></div>
-
-    <button type="submit" id="btnEnviar">Registrarse</button>
-</form>
-
-<?php
-if(!empty($errores)) {
-    echo '<div style="max-width:400px;margin:10px auto;color:red;">';
-    foreach($errores as $e) echo "<p>$e</p>";
-    echo '</div>';
-}
-?>
-
-<?php endif; ?>
 </body>
 </html>

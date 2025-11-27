@@ -79,7 +79,7 @@ $respuestas = $stmtResp->fetchAll(PDO::FETCH_ASSOC);
             </div>
 
             <?php 
-                $usuario_actual = 1; 
+                $usuario_actual = $_SESSION['user_id'] ?? null; 
                 
                 if ($pregunta['id_autor'] == $usuario_actual): 
             ?>
