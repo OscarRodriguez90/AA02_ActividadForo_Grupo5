@@ -9,13 +9,14 @@ USE db_foro;
 -- Tabla de usuarios
 CREATE TABLE IF NOT EXISTS tbl_usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    nombre_usuario VARCHAR(50) NOT NULL UNIQUE,
-    nombre_real VARCHAR(100) NOT NULL,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    nombre VARCHAR(50) NOT NULL,
+    apellidos VARCHAR(100) NOT NULL,
     email VARCHAR(150) NOT NULL UNIQUE,
-    contraseña VARCHAR(255) NOT NULL,
     fecha_nacimiento DATE NOT NULL,
-    genero ENUM('Masculino', 'Femenino', 'Otro') NOT NULL
-)ENGINE=InnoDB;
+    genero ENUM('hombre','mujer','otro') NOT NULL,
+    password VARCHAR(255) NOT NULL
+) ENGINE=InnoDB;
 
 -- Tabla de publicaciones (preguntas o respuestas)
 CREATE TABLE IF NOT EXISTS tbl_publicaciones (

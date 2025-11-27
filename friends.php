@@ -2,9 +2,9 @@
 session_start();
 require_once 'config/conexion.php';
 
-// HARDCODE: Simular usuario logueado si no existe
 if (!isset($_SESSION['user_id'])) {
-    $_SESSION['user_id'] = 1;
+    header("Location: view/login.php");
+    exit;
 }
 
 $my_id = $_SESSION['user_id'];

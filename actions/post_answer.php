@@ -7,7 +7,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $question_id = $_POST['question_id'] ?? null;
     $content     = $_POST['content'] ?? '';
     
-    $user_id = 1; 
+    if (!isset($_SESSION['user_id'])) {
+        header("Location: ../view/login.php");
+        exit;
+    }
+    $user_id = $_SESSION['user_id']; 
     
     if (!$question_id || empty(trim($content))) {
         die("Error: Faltan datos obligatorios.");

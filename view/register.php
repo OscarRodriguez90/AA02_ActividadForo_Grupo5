@@ -1,5 +1,5 @@
 <?php
-require '../conexion/conexion.php';
+require '../config/conexion.php';
 require '../proc/validaciones.php';
 
 $errores = [];

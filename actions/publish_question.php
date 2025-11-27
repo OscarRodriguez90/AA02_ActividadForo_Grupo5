@@ -7,7 +7,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $titulo = $_POST['title'];
     $contenido = $_POST['description'];
     
-    $id_autor = 1; 
+    session_start();
+    if (!isset($_SESSION['user_id'])) {
+        header("Location: ../view/login.php");
+        exit;
+    }
+    $id_autor = $_SESSION['user_id']; 
 
     try {
         $conn->beginTransaction();

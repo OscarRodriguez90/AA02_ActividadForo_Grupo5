@@ -2,53 +2,8 @@
 session_start();
 require_once 'config/conexion.php';
 
-// --------------------------------------------------------------------------------
-// 1. VERIFICACIÓN DE LOGIN (SIMULACIÓN)
-// --------------------------------------------------------------------------------
-// HARDCODE: Simular usuario logueado para ver la interfaz
 if (!isset($_SESSION['user_id'])) {
-    $_SESSION['user_id'] = 1;
-}
-
-if (!isset($_SESSION['user_id'])) {
-    // Si el usuario hizo clic en un enlace de "login_as", guardamos su ID en la sesión
-    if (isset($_GET['login_as'])) {
-        $_SESSION['user_id'] = $_GET['login_as'];
-        header("Location: chat.php"); // Recargamos la página para entrar ya logueados
-        exit;
-    }
-    
-    // Obtenemos todos los usuarios para mostrarlos en la pantalla de selección
-    try {
-        $stmt = $conn->query("SELECT * FROM tbl_usuarios");
-        $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) { $users = []; }
-    ?>
-    <!DOCTYPE html>
-    <html lang="es">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Login - Chat</title>
-        <link rel="stylesheet" href="assets/css/style.css">
-    </head>
-    <body>
-        <div class="login-wrapper">
-            <div class="card login-card slide-in">
-                <h2 class="text-center">Selecciona tu usuario</h2>
-                <p class="text-center" style="color: var(--color-gray);">Elige un usuario para acceder al chat</p>
-                <div class="user-btn-container">
-                    <?php foreach ($users as $u): ?>
-                        <a href="?login_as=<?= $u['id'] ?>" class="btn btn-primary user-btn">
-                            <?= htmlspecialchars($u['nombre_usuario']) ?>
-                        </a>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-        </div>
-    </body>
-    </html>
-    <?php
+    header("Location: view/login.php");
     exit;
 }
 

@@ -8,7 +8,11 @@ if (!isset($_GET['id'])) {
 }
 
 $id_pregunta = $_GET['id'];
-$id_usuario_actual = $_SESSION['user_id'] ?? 1;
+if (!isset($_SESSION['user_id'])) {
+    header("Location: view/login.php");
+    exit;
+}
+$id_usuario_actual = $_SESSION['user_id'];
 
 $sql = "SELECT * FROM tbl_publicaciones WHERE id = :id";
 $stmt = $conn->prepare($sql);

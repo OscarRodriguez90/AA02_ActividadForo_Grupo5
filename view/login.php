@@ -1,6 +1,6 @@
 <?php
 session_start();
-require '../conexion/conexion.php';
+require '../config/conexion.php';
 require '../proc/validaciones.php';
 
 $errores=[];
@@ -17,9 +17,9 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
         $usuario = $stmt->fetch();
 
         if($usuario && password_verify($password,$usuario['password'])){
-            $_SESSION['usuario_id']=$usuario['id'];
+            $_SESSION['user_id']=$usuario['id'];
             $_SESSION['username']=$usuario['username'];
-            header("Location: panel.php");
+            header("Location: ../index.php");
             exit();
         } else $errores[]="Usuario o contraseña incorrectos.";
     }
