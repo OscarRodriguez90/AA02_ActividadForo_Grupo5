@@ -125,8 +125,14 @@ require_once 'actions/perfil_actions.php';
                         <h3 class="card-title"><?= htmlspecialchars($post['titulo']) ?></h3>
                         <span class="tag"><?= date('d/m/Y', strtotime($post['fecha'])) ?></span>
                     </div>
-                    <div class="card-meta">
-                        <span>❤️ <?= $post['num_likes'] ?> likes</span>
+                    <div class="card-meta" style="display: flex; align-items: center; gap: 10px;">
+                        <form action="actions/like.php" method="POST" style="display:inline;">
+                            <input type="hidden" name="id" value="<?= $post['id'] ?>">
+                            <input type="hidden" name="redirect" value="../perfil.php?id=<?= $profile_id ?>">
+                            <button type="submit" class="btn <?= $post['user_liked'] ? 'btn-primary' : 'btn-secondary' ?>" style="padding: 2px 8px; font-size: 0.8rem;" title="<?= $post['user_liked'] ? 'Quitar like' : 'Dar like' ?>">
+                                <?= $post['user_liked'] ? '❤️' : '🤍' ?> <?= $post['num_likes'] ?>
+                            </button>
+                        </form>
                         <span>💬 <?= $post['num_respuestas'] ?> respuestas</span>
                     </div>
                     <div class="card-content">

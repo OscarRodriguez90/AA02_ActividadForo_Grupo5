@@ -158,12 +158,13 @@ function getUserStats($conn, $user_id) {
 // --------------------------------------------------------------------------------
 // FUNCIÓN: OBTENER ÚLTIMAS PUBLICACIONES DEL USUARIO
 // --------------------------------------------------------------------------------
-function getUserPosts($conn, $user_id, $limit = 5) {
+function getUserPosts($conn, $user_id, $viewer_id, $limit = 5) {
     try {
         $stmt = $conn->prepare("
             SELECT p.id, p.titulo, p.contenido, p.fecha, p.id_padre,
                    COUNT(DISTINCT l.id) as num_likes,
-                   COUNT(DISTINCT r.id) as num_respuestas
+                   COUNT(DISTINCT r.id) as num_respuestas,
+                   (SELECT COUNT(*) FROM tbl_likes WHERE id_publicacion = p.id AND id_usuario = :viewer_id) as user_liked
             FROM tbl_publicaciones p
             LEFT JOIN tbl_likes l ON p.id = l.id_publicacion
             LEFT JOIN tbl_publicaciones r ON p.id = r.id_padre
@@ -173,6 +174,7 @@ function getUserPosts($conn, $user_id, $limit = 5) {
             LIMIT :limit
         ");
         $stmt->bindParam(':id', $user_id);
+        $stmt->bindParam(':viewer_id', $viewer_id);
         $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -212,7 +214,7 @@ $am_i_sender = $friendship ? ($friendship['id_usuario1'] == $my_id) : false;
 $user_stats = getUserStats($conn, $profile_id);
 
 // Obtener publicaciones
-$user_posts = getUserPosts($conn, $profile_id, 5);
+$user_posts = getUserPosts($conn, $profile_id, $my_id, 5);
 
 // Los datos están listos para ser usados en la vista
 ?>
