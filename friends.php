@@ -152,11 +152,11 @@ try {
                         <div class="actions">
                             <?php if ($user['friendship_status'] === 'aceptada'): ?>
                                 <span class="badge">Amigos</span>
+                                <a href="chat.php?chat_with=<?= $user['id'] ?>" class="btn btn-primary btn-sm">Chatear 💬</a>
                             <?php elseif ($user['friendship_status'] === 'pendiente'): ?>
                                 <span class="tag">Solicitud Pendiente</span>
-                            <?php else: ?>
-                                <a href="?action=add&id=<?= $user['id'] ?>&search=<?= htmlspecialchars($_GET['search']) ?>" class="btn btn-secondary btn-sm">Añadir +</a>
                             <?php endif; ?>
+                            <a href="perfil.php?id=<?= $user['id'] ?>" class="btn btn-ghost btn-sm">Ver perfil</a>
                         </div>
                     </div>
                 <?php endforeach; ?>
