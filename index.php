@@ -4,6 +4,7 @@ require_once 'config/conexion.php';
 
 $busqueda = isset($_GET['q']) ? trim($_GET['q']) : '';
 $params = [];
+$user_id = $_SESSION['user_id'] ?? 0;
 
 $sql = "SELECT p.*, u.username 
         FROM tbl_publicaciones p 
@@ -16,6 +17,8 @@ if (!empty($busqueda)) {
 }
 
 $sql .= " ORDER BY p.fecha DESC";
+
+$params[':uid'] = $user_id;
 
 $stmt = $conn->prepare($sql);
 $stmt->execute($params);
@@ -97,7 +100,14 @@ $preguntas = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <?= htmlspecialchars(substr($pregunta['contenido'], 0, 150)) ?>...
                         </div>
 
-                        <div class="card-footer">
+                        <div class="card-footer" style="display: flex; justify-content: space-between; align-items: center;">
+                            <form action="actions/like.php" method="POST" style="display:inline;">
+                                <input type="hidden" name="id" value="<?= $pregunta['id'] ?>">
+                                <input type="hidden" name="redirect" value="../index.php">
+                                <button type="submit" class="btn <?= $pregunta['user_liked'] ? 'btn-primary' : 'btn-secondary' ?>" style="padding: 5px 10px; font-size: 0.9rem;" title="<?= $pregunta['user_liked'] ? 'Quitar like' : 'Dar like' ?>">
+                                    <?= $pregunta['user_liked'] ? '❤️' : '🤍' ?> <?= $pregunta['num_likes'] ?>
+                                </button>
+                            </form>
                             <a href="pregunta.php?id=<?= $pregunta['id'] ?>" class="btn btn-secondary" style="padding: 5px 15px; font-size: 0.9rem;">
                                 Ver Respuestas
                             </a>
