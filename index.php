@@ -5,7 +5,7 @@ require_once 'config/conexion.php';
 $busqueda = isset($_GET['q']) ? trim($_GET['q']) : '';
 $params = [];
 
-$sql = "SELECT p.*, u.nombre_usuario 
+$sql = "SELECT p.*, u.username 
         FROM tbl_publicaciones p 
         LEFT JOIN tbl_usuarios u ON p.id_autor = u.id 
         WHERE p.id_padre IS NULL";
@@ -88,7 +88,7 @@ $preguntas = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 </a>
                             </h3>
                             <div class="card-meta">
-                                <span>👤 <?= htmlspecialchars($pregunta['nombre_usuario'] ?? 'Anónimo') ?></span>
+                                <span>👤 <?= htmlspecialchars($pregunta['username'] ?? 'Anónimo') ?></span>
                                 <span>📅 <?= date('d/m/Y', strtotime($pregunta['fecha'])) ?></span>
                             </div>
                         </div>

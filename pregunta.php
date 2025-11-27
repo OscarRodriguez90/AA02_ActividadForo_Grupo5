@@ -10,7 +10,7 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 $id_pregunta = $_GET['id'];
 
 // 1. Obtener la pregunta principal
-$sql = "SELECT p.*, u.nombre_usuario 
+$sql = "SELECT p.*, u.username 
         FROM tbl_publicaciones p 
         JOIN tbl_usuarios u ON p.id_autor = u.id 
         WHERE p.id = :id AND p.id_padre IS NULL";
@@ -30,7 +30,7 @@ $stmtArchivos->execute([':id' => $id_pregunta]);
 $archivos = $stmtArchivos->fetchAll(PDO::FETCH_ASSOC);
 
 // 3. Obtener las respuestas
-$sqlResp = "SELECT p.*, u.nombre_usuario 
+$sqlResp = "SELECT p.*, u.username 
             FROM tbl_publicaciones p 
             JOIN tbl_usuarios u ON p.id_autor = u.id 
             WHERE p.id_padre = :id 
@@ -69,7 +69,7 @@ $respuestas = $stmtResp->fetchAll(PDO::FETCH_ASSOC);
             <div class="card-header">
                 <h1><?= htmlspecialchars($pregunta['titulo']) ?></h1>
                 <div class="card-meta">
-                    <span>👤 Publicado por <strong><?= htmlspecialchars($pregunta['nombre_usuario']) ?></strong></span>
+                    <span>👤 Publicado por <strong><?= htmlspecialchars($pregunta['username']) ?></strong></span>
                     <span>📅 <?= date('d/m/Y H:i', strtotime($pregunta['fecha'])) ?></span>
                 </div>
             </div>
@@ -134,7 +134,7 @@ $respuestas = $stmtResp->fetchAll(PDO::FETCH_ASSOC);
 
                 <div class="card">
                     <div class="card-header">
-                        <span class="text-orange" style="font-weight: bold;"><?= htmlspecialchars($respuesta['nombre_usuario']) ?></span> respondió:
+                        <span class="text-orange" style="font-weight: bold;"><?= htmlspecialchars($respuesta['username']) ?></span> respondió:
                         <span style="font-size: 0.8rem; color: #888; float: right;"><?= date('d/m/Y H:i', strtotime($respuesta['fecha'])) ?></span>
                     </div>
                     <div class="card-content">
