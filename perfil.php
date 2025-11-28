@@ -32,7 +32,7 @@ require_once 'actions/perfil_actions.php';
     <nav>
         <div class="logo">Foro<span class="username-highlight">Chat</span></div>
         <ul class="nav-links">
-            <li><a href="questions.php">Foro</a></li>
+            <li><a href="./index.php">Foro</a></li>
             <li><a href="friends.php">Amigos</a></li>
             <li><a href="chat.php">Chat</a></li>
             <li><a href="buscar.php">Buscar</a></li>

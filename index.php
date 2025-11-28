@@ -6,7 +6,7 @@ $busqueda = isset($_GET['q']) ? trim($_GET['q']) : '';
 $params = [];
 $user_id = $_SESSION['user_id'] ?? 0;
 
-$sql = "SELECT p.*, u.nombre_usuario,
+$sql = "SELECT p.*, u.username,
                (SELECT COUNT(*) FROM tbl_likes WHERE id_publicacion = p.id) as num_likes,
                (SELECT COUNT(*) FROM tbl_likes WHERE id_publicacion = p.id AND id_usuario = :uid) as user_liked
         FROM tbl_publicaciones p 

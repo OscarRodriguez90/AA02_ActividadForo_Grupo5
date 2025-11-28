@@ -11,7 +11,7 @@ $id_pregunta = $_GET['id'];
 $user_id = $_SESSION['user_id'] ?? 0;
 
 // 1. Obtener la pregunta principal
-$sql = "SELECT p.*, u.nombre_usuario,
+$sql = "SELECT p.*, u.username,
                (SELECT COUNT(*) FROM tbl_likes WHERE id_publicacion = p.id) as num_likes,
                (SELECT COUNT(*) FROM tbl_likes WHERE id_publicacion = p.id AND id_usuario = :uid) as user_liked
         FROM tbl_publicaciones p 
@@ -33,7 +33,7 @@ $stmtArchivos->execute([':id' => $id_pregunta]);
 $archivos = $stmtArchivos->fetchAll(PDO::FETCH_ASSOC);
 
 // 3. Obtener las respuestas
-$sqlResp = "SELECT p.*, u.nombre_usuario,
+$sqlResp = "SELECT p.*, u.username,
                    (SELECT COUNT(*) FROM tbl_likes WHERE id_publicacion = p.id) as num_likes,
                    (SELECT COUNT(*) FROM tbl_likes WHERE id_publicacion = p.id AND id_usuario = :uid) as user_liked
             FROM tbl_publicaciones p 
