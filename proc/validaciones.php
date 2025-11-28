@@ -1,5 +1,5 @@
 <?php
-require '../conexion/conexion.php';
+require '../config/conexion.php';
 
 function validarRegistro($username, $nombre, $apellidos, $email, $fecha_nacimiento, $genero, $password, $confirmar_password, $conn) {
     $errores = [];
