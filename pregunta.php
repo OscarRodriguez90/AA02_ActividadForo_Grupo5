@@ -8,14 +8,17 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 }
 
 $id_pregunta = $_GET['id'];
+$user_id = $_SESSION['user_id'] ?? 0;
 
 // 1. Obtener la pregunta principal
-$sql = "SELECT p.*, u.username 
+$sql = "SELECT p.*, u.nombre_usuario,
+               (SELECT COUNT(*) FROM tbl_likes WHERE id_publicacion = p.id) as num_likes,
+               (SELECT COUNT(*) FROM tbl_likes WHERE id_publicacion = p.id AND id_usuario = :uid) as user_liked
         FROM tbl_publicaciones p 
         JOIN tbl_usuarios u ON p.id_autor = u.id 
         WHERE p.id = :id AND p.id_padre IS NULL";
 $stmt = $conn->prepare($sql);
-$stmt->execute([':id' => $id_pregunta]);
+$stmt->execute([':id' => $id_pregunta, ':uid' => $user_id]);
 $pregunta = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$pregunta) {
@@ -30,13 +33,15 @@ $stmtArchivos->execute([':id' => $id_pregunta]);
 $archivos = $stmtArchivos->fetchAll(PDO::FETCH_ASSOC);
 
 // 3. Obtener las respuestas
-$sqlResp = "SELECT p.*, u.username 
+$sqlResp = "SELECT p.*, u.nombre_usuario,
+                   (SELECT COUNT(*) FROM tbl_likes WHERE id_publicacion = p.id) as num_likes,
+                   (SELECT COUNT(*) FROM tbl_likes WHERE id_publicacion = p.id AND id_usuario = :uid) as user_liked
             FROM tbl_publicaciones p 
             JOIN tbl_usuarios u ON p.id_autor = u.id 
             WHERE p.id_padre = :id 
             ORDER BY p.fecha ASC";
 $stmtResp = $conn->prepare($sqlResp);
-$stmtResp->execute([':id' => $id_pregunta]);
+$stmtResp->execute([':id' => $id_pregunta, ':uid' => $user_id]);
 $respuestas = $stmtResp->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
@@ -78,8 +83,18 @@ $respuestas = $stmtResp->fetchAll(PDO::FETCH_ASSOC);
                 <?= nl2br(htmlspecialchars($pregunta['contenido'])) ?>
             </div>
 
+            <div class="card-footer" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; margin-top: 10px;">
+                <form action="actions/like.php" method="POST" style="display:inline;">
+                    <input type="hidden" name="id" value="<?= $pregunta['id'] ?>">
+                    <input type="hidden" name="redirect" value="../pregunta.php?id=<?= $pregunta['id'] ?>">
+                    <button type="submit" class="btn <?= $pregunta['user_liked'] ? 'btn-primary' : 'btn-secondary' ?>" style="padding: 5px 10px; font-size: 0.9rem;" title="<?= $pregunta['user_liked'] ? 'Quitar like' : 'Dar like' ?>">
+                        <?= $pregunta['user_liked'] ? '❤️' : '🤍' ?> <?= $pregunta['num_likes'] ?>
+                    </button>
+                </form>
+            </div>
+
             <?php 
-                $usuario_actual = $_SESSION['user_id'] ?? null; 
+                $usuario_actual = $_SESSION['user_id'] ?? 0;
                 
                 if ($pregunta['id_autor'] == $usuario_actual): 
             ?>
@@ -139,6 +154,16 @@ $respuestas = $stmtResp->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                     <div class="card-content">
                         <?= nl2br(htmlspecialchars($respuesta['contenido'])) ?>
+                    </div>
+
+                    <div class="card-footer" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; margin-top: 10px;">
+                        <form action="actions/like.php" method="POST" style="display:inline;">
+                            <input type="hidden" name="id" value="<?= $respuesta['id'] ?>">
+                            <input type="hidden" name="redirect" value="../pregunta.php?id=<?= $pregunta['id'] ?>">
+                            <button type="submit" class="btn <?= $respuesta['user_liked'] ? 'btn-primary' : 'btn-secondary' ?>" style="padding: 5px 10px; font-size: 0.9rem;" title="<?= $respuesta['user_liked'] ? 'Quitar like' : 'Dar like' ?>">
+                                <?= $respuesta['user_liked'] ? '❤️' : '🤍' ?> <?= $respuesta['num_likes'] ?>
+                            </button>
+                        </form>
                     </div>
 
                     <?php if (count($archivosResp) > 0): ?>
