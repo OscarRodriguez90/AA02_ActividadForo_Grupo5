@@ -2,9 +2,9 @@
 session_start();
 require_once 'config/conexion.php';
 
-// HARDCODE: Simular usuario logueado si no existe
 if (!isset($_SESSION['user_id'])) {
-    $_SESSION['user_id'] = 1;
+    header("Location: view/login.php");
+    exit;
 }
 
 $my_id = $_SESSION['user_id'];
@@ -15,10 +15,10 @@ if (!empty($search_query)) {
     try {
         $search = '%' . $search_query . '%';
         $stmt = $conn->prepare("
-            SELECT u.id, u.nombre_usuario, u.nombre_real, u.email,
+            SELECT u.id, u.username as nombre_usuario, CONCAT(u.nombre, ' ', u.apellidos) as nombre_real, u.email,
             (SELECT estado FROM tbl_amistades WHERE (id_usuario1 = u.id AND id_usuario2 = :me) OR (id_usuario1 = :me AND id_usuario2 = u.id)) as friendship_status
             FROM tbl_usuarios u 
-            WHERE (u.nombre_usuario LIKE :search OR u.nombre_real LIKE :search) AND u.id != :me
+            WHERE (u.username LIKE :search OR u.nombre LIKE :search OR u.apellidos LIKE :search) AND u.id != :me
             LIMIT 20
         ");
         $stmt->bindParam(':search', $search);
