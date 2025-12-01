@@ -485,6 +485,20 @@ nav {
 label {
   display: block;
   margin-bottom: var(--spacing-xs);
+  font-weight: 600;
+  color: var(--color-orange-light);
+  font-size: 0.95rem;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea,
+select {
+  width: 100%;
+  padding: var(--spacing-sm);
+  background: rgba(26, 26, 26, 0.8);
+  border: 2px solid rgba(255, 107, 53, 0.2);
   border-radius: var(--radius-md);
   color: var(--color-white);
   font-family: var(--font-primary);
@@ -506,11 +520,22 @@ textarea {
   min-height: 120px;
 }
 
-color: var(--color-white);
-font-family: var(--font-primary);
-font-size: 0.95rem;
-cursor: pointer;
-transition: all var(--transition-normal);
+::placeholder {
+  color: var(--color-gray-dark);
+}
+
+/* Estilos para input type="file" */
+input[type="file"] {
+  width: 100%;
+  padding: var(--spacing-sm);
+  background: rgba(26, 26, 26, 0.8);
+  border: 2px solid rgba(255, 107, 53, 0.2);
+  border-radius: var(--radius-md);
+  color: var(--color-white);
+  font-family: var(--font-primary);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all var(--transition-normal);
 }
 
 input[type="file"]:hover {

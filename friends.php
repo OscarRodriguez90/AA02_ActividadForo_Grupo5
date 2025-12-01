@@ -101,9 +101,22 @@ try {
     $stmt->execute();
     $requests_received = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+    // Solicitudes enviadas
+    $stmt = $conn->prepare("
+        SELECT f.id as friendship_id, u.id as user_id, u.username as nombre_usuario 
+        FROM tbl_amistades f
+        JOIN tbl_usuarios u ON f.id_usuario2 = u.id
+        WHERE f.id_usuario1 = :me AND f.estado = 'pendiente'
+    ");
+    $stmt->bindParam(':me', $my_id);
+    $stmt->execute();
+    $requests_sent = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 } catch (PDOException $e) {
     $my_friends = [];
+    $my_friends = [];
     $requests_received = [];
+    $requests_sent = [];
 }
 ?>
 <!DOCTYPE html>
@@ -179,6 +192,24 @@ try {
                     <div class="actions">
                         <a href="?action=accept&id=<?= $req['friendship_id'] ?>" class="btn btn-primary btn-sm">Aceptar</a>
                         <a href="?action=deny&id=<?= $req['friendship_id'] ?>" class="btn btn-ghost btn-sm">Rechazar</a>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+
+    <!-- Solicitudes Enviadas -->
+    <?php if (!empty($requests_sent)): ?>
+        <h2 class="section-title">Solicitudes Enviadas</h2>
+        <div class="grid">
+            <?php foreach ($requests_sent as $req): ?>
+                <div class="user-card" style="opacity: 0.8;">
+                    <div class="user-info">
+                        <h3><?= htmlspecialchars($req['nombre_usuario']) ?></h3>
+                        <p>Solicitud enviada</p>
+                    </div>
+                    <div class="actions">
+                        <a href="?action=deny&id=<?= $req['friendship_id'] ?>" class="btn btn-ghost btn-sm">Cancelar</a>
                     </div>
                 </div>
             <?php endforeach; ?>
