@@ -8,13 +8,40 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-$user_id = $_SESSION['user_id'];
+$my_id = $_SESSION['user_id'];
+$profile_id = isset($_GET['id']) ? (int)$_GET['id'] : $my_id;
+$is_own_profile = ($profile_id === $my_id);
 
-// Obtener datos del usuario
+// Obtener datos del usuario (del perfil que estamos viendo)
 $stmt = $conn->prepare("SELECT * FROM tbl_usuarios WHERE id = :id");
-$stmt->bindParam(':id', $user_id);
+$stmt->bindParam(':id', $profile_id);
 $stmt->execute();
 $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+
+// Verificar estado de amistad si no es mi perfil
+$friendship_status = null;
+$friendship_id = null;
+
+if (!$is_own_profile) {
+    $stmt_friend = $conn->prepare("SELECT id, estado, id_usuario1 FROM tbl_amistades WHERE (id_usuario1 = :me AND id_usuario2 = :other) OR (id_usuario1 = :other AND id_usuario2 = :me)");
+    $stmt_friend->bindParam(':me', $my_id);
+    $stmt_friend->bindParam(':other', $profile_id);
+    $stmt_friend->execute();
+    $friendship = $stmt_friend->fetch(PDO::FETCH_ASSOC);
+    
+    if ($friendship) {
+        $friendship_status = $friendship['estado'];
+        $friendship_id = $friendship['id'];
+        // Si está pendiente, ver quién la envió
+        if ($friendship_status === 'pendiente') {
+             if ($friendship['id_usuario1'] == $my_id) {
+                 $friendship_status = 'sent'; // Enviada por mí
+             } else {
+                 $friendship_status = 'received'; // Recibida por mí
+             }
+        }
+    }
+}
 
 if (!$usuario) {
     echo "Usuario no encontrado.";
@@ -222,16 +249,42 @@ $mis_respuestas = $stmt_last_answers->fetchAll(PDO::FETCH_ASSOC);
                 <p>@<?= htmlspecialchars($usuario['username']) ?></p>
                 
                 <div class="profile-actions">
-                    <a href="friends.php" class="btn btn-primary">
-                        👥 Mis Amigos
-                    </a>
-                    <!-- Estos botones podrían llevar a páginas de edición reales -->
-                    <a href="editar_perfil.php" class="btn btn-secondary">
-                        ✏️ Editar Perfil
-                    </a>
-                    <button onclick="alert('Funcionalidad de cambio de contraseña próximamente')" class="btn btn-secondary">
-                        🔒 Cambiar Contraseña
-                    </button>
+                    <?php if ($is_own_profile): ?>
+                        <a href="friends.php" class="btn btn-primary">
+                            👥 Mis Amigos
+                        </a>
+                        <a href="editar_perfil.php" class="btn btn-secondary">
+                            ✏️ Editar Perfil
+                        </a>
+                        <button onclick="alert('Funcionalidad de cambio de contraseña próximamente')" class="btn btn-secondary">
+                            🔒 Cambiar Contraseña
+                        </button>
+                    <?php else: ?>
+                        <!-- Botones para otros usuarios -->
+                        <?php if (!$friendship_status): ?>
+                            <a href="friends.php?action=add&id=<?= $profile_id ?>" class="btn btn-primary">
+                                ➕ Enviar Solicitud de Amistad
+                            </a>
+                        <?php elseif ($friendship_status === 'sent'): ?>
+                            <button class="btn btn-secondary" disabled>
+                                ⏳ Solicitud Enviada
+                            </button>
+                        <?php elseif ($friendship_status === 'received'): ?>
+                            <a href="friends.php?action=accept&id=<?= $friendship_id ?>" class="btn btn-primary">
+                                ✅ Aceptar Solicitud
+                            </a>
+                            <a href="friends.php?action=deny&id=<?= $friendship_id ?>" class="btn btn-ghost">
+                                ❌ Rechazar
+                            </a>
+                        <?php elseif ($friendship_status === 'aceptada'): ?>
+                            <a href="chat.php?chat_with=<?= $profile_id ?>" class="btn btn-primary">
+                                💬 Enviar Mensaje
+                            </a>
+                            <button class="btn btn-secondary" disabled>
+                                ✅ Amigos
+                            </button>
+                        <?php endif; ?>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
