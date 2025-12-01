@@ -22,7 +22,7 @@ $chat_with_id = isset($_GET['chat_with']) ? (int)$_GET['chat_with'] : null;
 // Buscamos en la tabla 'tbl_amistades' donde el usuario actual sea id_usuario1 O id_usuario2.
 try {
     $stmt = $conn->prepare("
-        SELECT u.id, u.nombre_usuario as username 
+        SELECT u.id, u.username as username 
         FROM tbl_usuarios u
         JOIN tbl_amistades f ON (f.id_usuario1 = u.id OR f.id_usuario2 = u.id)
         WHERE (f.id_usuario1 = :uid OR f.id_usuario2 = :uid) 
@@ -100,7 +100,7 @@ if ($chat_with_id) {
         // (Yo soy emisor Y él es receptor) O (Él es emisor Y yo soy receptor)
         // Ordenados por fecha ascendente (más antiguos primero)
         $stmt = $conn->prepare("
-            SELECT m.*, u.nombre_usuario as sender_name, m.mensaje as content, m.fecha as created_at, m.id_emisor as sender_id
+            SELECT m.*, u.username as sender_name, m.mensaje as content, m.fecha as created_at, m.id_emisor as sender_id
             FROM tbl_mensajes_privados m 
             JOIN tbl_usuarios u ON m.id_emisor = u.id
             WHERE (id_emisor = :current_id AND id_receptor = :other_id) 
@@ -132,7 +132,7 @@ if ($chat_with_id) {
         <a href="friends.php" class="manage-link">Gestionar</a>
     </div>
     
-    <a href="questions.php" class="back-link">← Volver a Preguntas</a>
+    <a href="./index.php" class="back-link">← Volver a Preguntas</a>
 
     <?php if (empty($friends)): ?>
         <div class="empty-friends">

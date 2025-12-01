@@ -121,7 +121,7 @@ try {
         <div class="logo">Foro<span class="username-highlight">Chat</span></div>
         <div class="nav-links">
             <a href="chat.php">Volver al Chat</a>
-            <a href="questions.php">Foro</a>
+            <a href="./index.php">Foro</a>
         </div>
     </nav>
 </header>
