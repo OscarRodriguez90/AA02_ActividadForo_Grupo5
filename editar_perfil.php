@@ -9,7 +9,6 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $user_id = $_SESSION['user_id'];
-$mensaje = '';
 $error = '';
 
 // Obtener datos actuales del usuario
@@ -54,13 +53,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt_update->bindParam(':id', $user_id);
             
             if ($stmt_update->execute()) {
-                $mensaje = "Perfil actualizado correctamente.";
-                // Actualizar datos en variable $usuario para mostrar los nuevos valores en el formulario
-                $usuario['nombre'] = $nombre;
-                $usuario['apellidos'] = $apellidos;
-                $usuario['email'] = $email;
-                $usuario['fecha_nacimiento'] = $fecha_nacimiento;
-                $usuario['genero'] = $genero;
+                // Redirigir a perfil.php después de guardar exitosamente
+                header("Location: ./perfil.php");
+                exit();
             } else {
                 $error = "Error al actualizar el perfil.";
             }
@@ -104,10 +99,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             
             <div class="card-content">
-                <?php if ($mensaje): ?>
-                    <div class="alert alert-success"><?= htmlspecialchars($mensaje) ?></div>
-                <?php endif; ?>
-                
                 <?php if ($error): ?>
                     <div class="alert alert-danger" style="color: red; background: rgba(255,0,0,0.1); border: 1px solid red; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
                         <?= htmlspecialchars($error) ?>
@@ -117,31 +108,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <form action="editar_perfil.php" method="POST">
                     <div class="form-group">
                         <label for="nombre">Nombre</label>
-                        <input type="text" id="nombre" name="nombre" value="<?= htmlspecialchars($usuario['nombre']) ?>" required>
+                        <input type="text" id="nombre" name="nombre" value="<?= htmlspecialchars($usuario['nombre']) ?>">
+                        <div id="error-nombre" class="mensaje-error" style="color: red; font-size: 0.875rem; margin-top: 0.25rem;"></div>
                     </div>
 
                     <div class="form-group">
                         <label for="apellidos">Apellidos</label>
-                        <input type="text" id="apellidos" name="apellidos" value="<?= htmlspecialchars($usuario['apellidos']) ?>" required>
+                        <input type="text" id="apellidos" name="apellidos" value="<?= htmlspecialchars($usuario['apellidos']) ?>" >
+                        <div id="error-apellidos" class="mensaje-error" style="color: red; font-size: 0.875rem; margin-top: 0.25rem;"></div>
                     </div>
 
                     <div class="form-group">
                         <label for="email">Correo Electrónico</label>
-                        <input type="email" id="email" name="email" value="<?= htmlspecialchars($usuario['email']) ?>" required>
+                        <input type="email" id="email" name="email" value="<?= htmlspecialchars($usuario['email']) ?>" >
+                        <div id="error-email" class="mensaje-error" style="color: red; font-size: 0.875rem; margin-top: 0.25rem;"></div>
                     </div>
 
                     <div class="form-group">
                         <label for="fecha_nacimiento">Fecha de Nacimiento</label>
-                        <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" value="<?= htmlspecialchars($usuario['fecha_nacimiento']) ?>" required>
+                        <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" value="<?= htmlspecialchars($usuario['fecha_nacimiento']) ?>" >
+                        <div id="error-fecha_nacimiento" class="mensaje-error" style="color: red; font-size: 0.875rem; margin-top: 0.25rem;"></div>
                     </div>
 
                     <div class="form-group">
                         <label for="genero">Género</label>
-                        <select id="genero" name="genero" required>
+                        <select id="genero" name="genero" >
                             <option value="hombre" <?= $usuario['genero'] == 'hombre' ? 'selected' : '' ?>>Hombre</option>
                             <option value="mujer" <?= $usuario['genero'] == 'mujer' ? 'selected' : '' ?>>Mujer</option>
                             <option value="otro" <?= $usuario['genero'] == 'otro' ? 'selected' : '' ?>>Otro</option>
                         </select>
+                        <div id="error-genero" class="mensaje-error" style="color: red; font-size: 0.875rem; margin-top: 0.25rem;"></div>
                     </div>
 
                     <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
@@ -153,6 +149,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
-    <script src="assets/js/main.js"></script>
+    <script src="js/validaciones.js"></script>
+    <script>
+        window.onload = function() {
+            iniciarValidacionesEditarPerfil();
+        };
+    </script>
 </body>
 </html>
