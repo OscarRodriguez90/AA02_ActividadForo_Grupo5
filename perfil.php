@@ -1,159 +1,334 @@
 <?php
-/**
- * PERFIL DE USUARIO - VISTA
- * Frontend para visualización de perfiles de usuario
- */
+session_start();
+require_once 'config/conexion.php';
 
-// Incluir la lógica de negocio
-require_once 'actions/perfil_actions.php';
+// Verificar si el usuario está logueado
+if (!isset($_SESSION['user_id'])) {
+    header("Location: view/login.php");
+    exit();
+}
 
-// Todas las variables están disponibles desde perfil_actions.php:
-// - $user: información del usuario
-// - $my_id: ID del usuario actual
-// - $profile_id: ID del perfil que se está viendo
-// - $friendship_status: estado de la amistad
-// - $am_i_sender: si yo envié la solicitud
-// - $user_stats: estadísticas del usuario
-// - $user_posts: publicaciones del usuario
-// - $message: mensajes de éxito
-// - $error: mensajes de error
+$user_id = $_SESSION['user_id'];
+
+// Obtener datos del usuario
+$stmt = $conn->prepare("SELECT * FROM tbl_usuarios WHERE id = :id");
+$stmt->bindParam(':id', $user_id);
+$stmt->execute();
+$usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$usuario) {
+    echo "Usuario no encontrado.";
+    exit();
+}
+
+// Obtener estadísticas
+// 1. Número de preguntas (publicaciones sin padre)
+$stmt_preguntas = $conn->prepare("SELECT COUNT(*) FROM tbl_publicaciones WHERE id_autor = :id AND id_padre IS NULL");
+$stmt_preguntas->bindParam(':id', $user_id);
+$stmt_preguntas->execute();
+$num_preguntas = $stmt_preguntas->fetchColumn();
+
+// 2. Número de respuestas (publicaciones con padre)
+$stmt_respuestas = $conn->prepare("SELECT COUNT(*) FROM tbl_publicaciones WHERE id_autor = :id AND id_padre IS NOT NULL");
+$stmt_respuestas->bindParam(':id', $user_id);
+$stmt_respuestas->execute();
+$num_respuestas = $stmt_respuestas->fetchColumn();
+
+// 3. Likes dados
+$stmt_likes = $conn->prepare("SELECT COUNT(*) FROM tbl_likes WHERE id_usuario = :id");
+$stmt_likes->bindParam(':id', $user_id);
+$stmt_likes->execute();
+$num_likes = $stmt_likes->fetchColumn();
+
+// Obtener últimas preguntas
+$stmt_last_questions = $conn->prepare("SELECT * FROM tbl_publicaciones WHERE id_autor = :id AND id_padre IS NULL ORDER BY fecha DESC LIMIT 5");
+$stmt_last_questions->bindParam(':id', $user_id);
+$stmt_last_questions->execute();
+$mis_preguntas = $stmt_last_questions->fetchAll(PDO::FETCH_ASSOC);
+
+// Obtener últimas respuestas (con el título de la pregunta original)
+$stmt_last_answers = $conn->prepare("
+    SELECT r.*, p.titulo as titulo_pregunta, p.id as id_pregunta 
+    FROM tbl_publicaciones r 
+    JOIN tbl_publicaciones p ON r.id_padre = p.id 
+    WHERE r.id_autor = :id AND r.id_padre IS NOT NULL 
+    ORDER BY r.fecha DESC LIMIT 5
+");
+$stmt_last_answers->bindParam(':id', $user_id);
+$stmt_last_answers->execute();
+$mis_respuestas = $stmt_last_answers->fetchAll(PDO::FETCH_ASSOC);
+
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perfil de <?= htmlspecialchars($user['nombre_usuario']) ?> - Foro</title>
+    <title>Mi Perfil - Foro</title>
     <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            background: var(--bg-card, #1e1e1e); /* Fallback color */
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .profile-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 4px solid var(--color-orange, #ff6b00);
+            object-fit: cover;
+            box-shadow: 0 0 15px rgba(255, 107, 0, 0.3);
+        }
+        .profile-info {
+            flex: 1;
+        }
+        .profile-info h1 {
+            margin: 0 0 0.5rem 0;
+            font-size: 2.5rem;
+            color: var(--text-primary, #fff);
+        }
+        .profile-info p {
+            font-size: 1.1rem;
+            color: var(--text-secondary, #aaa);
+            margin-bottom: 0.5rem;
+        }
+        .profile-actions {
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .profile-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        .detail-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .detail-label {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--color-orange, #ff6b00);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .detail-value {
+            font-size: 1.2rem;
+            color: var(--text-primary, #fff);
+            font-weight: 500;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        .stat-item {
+            background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: transform 0.2s;
+        }
+        .stat-item:hover {
+            transform: translateY(-5px);
+            border-color: var(--color-orange, #ff6b00);
+        }
+        .stat-value {
+            display: block;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--color-orange, #ff6b00);
+            margin-bottom: 0.5rem;
+        }
+        .stat-label {
+            color: var(--text-secondary, #aaa);
+            font-size: 0.9rem;
+        }
+
+        .activity-section {
+            margin-top: 3rem;
+        }
+        .activity-list {
+            display: grid;
+            gap: 1rem;
+        }
+        .activity-item {
+            background: rgba(255,255,255,0.03);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 3px solid var(--color-orange, #ff6b00);
+            transition: background 0.2s;
+        }
+        .activity-item:hover {
+            background: rgba(255,255,255,0.06);
+        }
+        .activity-title {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+        .activity-title a {
+            color: var(--text-primary, #fff);
+            text-decoration: none;
+        }
+        .activity-title a:hover {
+            color: var(--color-orange, #ff6b00);
+        }
+        .activity-meta {
+            font-size: 0.85rem;
+            color: var(--text-secondary, #aaa);
+        }
+    </style>
 </head>
 <body>
 
-<header>
-    <nav>
-        <div class="logo">Foro<span class="username-highlight">Chat</span></div>
-        <ul class="nav-links">
-            <li><a href="./index.php">Foro</a></li>
-            <li><a href="friends.php">Amigos</a></li>
-            <li><a href="chat.php">Chat</a></li>
-            <li><a href="buscar.php">Buscar</a></li>
-        </ul>
-    </nav>
-</header>
+    <header>
+        <nav>
+            <a href="index.php" class="logo">Foro</a>
+            <ul class="nav-links">
+                <li><a href="index.php">Inicio</a></li>
+                <li><a href="crear_pregunta.php">Nueva Pregunta</a></li>
+                <li><a href="perfil.php" class="active" style="color: var(--color-orange);">Perfil</a></li>
+                <li><a href="./view/logout.php">Cerrar Sesión</a></li>
+            </ul>
+        </nav>
+    </header>
 
-<div class="container">
-    <div class="friends-container">
-        <h1 class="text-center">Perfil de Usuario</h1>
+    <div class="container">
         
-        <!-- Mensajes de éxito -->
-        <?php if ($message): ?>
-            <div class="alert alert-success"><?= htmlspecialchars($message) ?></div>
-        <?php endif; ?>
-        
-        <!-- Mensajes de error -->
-        <?php if ($error): ?>
-            <div class="alert alert-error"><?= htmlspecialchars($error) ?></div>
-        <?php endif; ?>
-        
-        <!-- Información del perfil -->
-        <div class="card">
-            <div class="card-header">
-                <div>
-                    <h2 style="margin: 0;"><?= htmlspecialchars($user['nombre_usuario']) ?></h2>
-                    <p style="margin: 0.5rem 0 0 0; color: var(--color-gray);">
-                        <?= htmlspecialchars($user['nombre_real']) ?>
-                    </p>
-                </div>
-                <div class="actions">
-                    <?php if ($profile_id !== $my_id): ?>
-                        <?php if ($friendship_status === 'aceptada'): ?>
-                            <!-- Ya son amigos: mostrar botón de chat -->
-                            <span class="badge">✓ Amigos</span>
-                            <a href="chat.php?chat_with=<?= $profile_id ?>" class="btn btn-primary">
-                                💬 Chatear
-                            </a>
-                        <?php elseif ($friendship_status === 'pendiente'): ?>
-                            <!-- Solicitud pendiente -->
-                            <?php if ($am_i_sender): ?>
-                                <span class="tag">Solicitud enviada</span>
-                            <?php else: ?>
-                                <span class="tag">Solicitud recibida (revisar en Amigos)</span>
-                            <?php endif; ?>
-                        <?php else: ?>
-                            <!-- No son amigos: mostrar botón para enviar solicitud -->
-                            <form method="POST" style="display: inline;">
-                                <button type="submit" name="send_friend_request" class="btn btn-secondary">
-                                    + Añadir como amigo
-                                </button>
-                            </form>
-                        <?php endif; ?>
-                    <?php else: ?>
-                        <span class="badge">Mi Perfil</span>
-                    <?php endif; ?>
-                </div>
-            </div>
+        <div class="profile-header">
+            <!-- Avatar generado con UI Avatars -->
+            <img src="https://ui-avatars.com/api/?name=<?= urlencode($usuario['nombre'] . ' ' . $usuario['apellidos']) ?>&background=random&size=150&bold=true" alt="Avatar" class="profile-avatar">
             
-            <div class="card-content">
-                <p><strong>Email:</strong> <?= htmlspecialchars($user['email']) ?></p>
+            <div class="profile-info">
+                <h1><?= htmlspecialchars($usuario['nombre'] . ' ' . $usuario['apellidos']) ?></h1>
+                <p>@<?= htmlspecialchars($usuario['username']) ?></p>
+                
+                <div class="profile-actions">
+                    <a href="friends.php" class="btn btn-primary">
+                        👥 Mis Amigos
+                    </a>
+                    <!-- Estos botones podrían llevar a páginas de edición reales -->
+                    <a href="editar_perfil.php" class="btn btn-secondary">
+                        ✏️ Editar Perfil
+                    </a>
+                    <button onclick="alert('Funcionalidad de cambio de contraseña próximamente')" class="btn btn-secondary">
+                        🔒 Cambiar Contraseña
+                    </button>
+                </div>
             </div>
         </div>
+
+        <div class="profile-details">
+            <div class="detail-item">
+                <span class="detail-label">Correo Electrónico</span>
+                <span class="detail-value"><?= htmlspecialchars($usuario['email']) ?></span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Género</span>
+                <span class="detail-value"><?= ucfirst(htmlspecialchars($usuario['genero'])) ?></span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Fecha de Nacimiento</span>
+                <span class="detail-value"><?= date('d/m/Y', strtotime($usuario['fecha_nacimiento'])) ?></span>
+            </div>
+        </div>
+
+        <h2 style="margin-top: 3rem; margin-bottom: 1.5rem;">Mis Estadísticas</h2>
         
-        <!-- Estadísticas del usuario -->
-        <h2 class="section-title">Estadísticas</h2>
         <div class="stats">
             <div class="stat-item">
-                <span class="stat-value"><?= $user_stats['publicaciones'] ?></span>
+                <span class="stat-value"><?= $num_preguntas ?></span>
                 <span class="stat-label">Preguntas</span>
             </div>
             <div class="stat-item">
-                <span class="stat-value"><?= $user_stats['respuestas'] ?></span>
+                <span class="stat-value"><?= $num_respuestas ?></span>
                 <span class="stat-label">Respuestas</span>
             </div>
             <div class="stat-item">
-                <span class="stat-value"><?= $user_stats['likes_recibidos'] ?></span>
-                <span class="stat-label">Likes recibidos</span>
+                <span class="stat-value"><?= $num_likes ?></span>
+                <span class="stat-label">Likes Dados</span>
             </div>
         </div>
-        
-        <!-- Últimas publicaciones -->
-        <h2 class="section-title">Últimas Preguntas</h2>
-        <?php if (empty($user_posts)): ?>
-            <p class="text-center empty-messages">Este usuario aún no ha publicado ninguna pregunta.</p>
-        <?php else: ?>
-            <?php foreach ($user_posts as $post): ?>
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title"><?= htmlspecialchars($post['titulo']) ?></h3>
-                        <span class="tag"><?= date('d/m/Y', strtotime($post['fecha'])) ?></span>
-                    </div>
-                    <div class="card-meta" style="display: flex; align-items: center; gap: 10px;">
-                        <form action="actions/like.php" method="POST" style="display:inline;">
-                            <input type="hidden" name="id" value="<?= $post['id'] ?>">
-                            <input type="hidden" name="redirect" value="../perfil.php?id=<?= $profile_id ?>">
-                            <button type="submit" class="btn <?= $post['user_liked'] ? 'btn-primary' : 'btn-secondary' ?>" style="padding: 2px 8px; font-size: 0.8rem;" title="<?= $post['user_liked'] ? 'Quitar like' : 'Dar like' ?>">
-                                <?= $post['user_liked'] ? '❤️' : '🤍' ?> <?= $post['num_likes'] ?>
-                            </button>
-                        </form>
-                        <span>💬 <?= $post['num_respuestas'] ?> respuestas</span>
-                    </div>
-                    <div class="card-content">
-                        <?= nl2br(htmlspecialchars(substr($post['contenido'], 0, 200))) ?>
-                        <?= strlen($post['contenido']) > 200 ? '...' : '' ?>
-                    </div>
-                    <div class="card-footer">
-                        <a href="question_detail.php?id=<?= $post['id'] ?>" class="btn btn-ghost btn-sm">
-                            Ver pregunta completa →
-                        </a>
-                    </div>
-                </div>
-            <?php endforeach; ?>
-        <?php endif; ?>
-        
-        <!-- Botón volver -->
-        <div class="text-center" style="margin-top: var(--spacing-xl);">
-            <a href="friends.php" class="btn btn-secondary">← Volver a Amigos</a>
-        </div>
-    </div>
-</div>
 
+        <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 3rem;">
+            
+            <!-- Mis Últimas Preguntas -->
+            <div>
+                <h3 style="margin-bottom: 1rem; border-bottom: 2px solid var(--color-orange); padding-bottom: 0.5rem;">
+                    Mis Últimas Preguntas
+                </h3>
+                <?php if (count($mis_preguntas) > 0): ?>
+                    <div class="activity-list">
+                        <?php foreach ($mis_preguntas as $pregunta): ?>
+                            <div class="activity-item">
+                                <div class="activity-title">
+                                    <a href="pregunta.php?id=<?= $pregunta['id'] ?>">
+                                        <?= htmlspecialchars($pregunta['titulo']) ?>
+                                    </a>
+                                </div>
+                                <div class="activity-meta">
+                                    📅 <?= date('d/m/Y H:i', strtotime($pregunta['fecha'])) ?>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php else: ?>
+                    <p class="text-muted">No has hecho ninguna pregunta aún.</p>
+                    <a href="crear_pregunta.php" class="btn btn-sm btn-primary" style="margin-top: 10px;">Hacer una pregunta</a>
+                <?php endif; ?>
+            </div>
+
+            <!-- Mis Últimas Respuestas -->
+            <div>
+                <h3 style="margin-bottom: 1rem; border-bottom: 2px solid var(--color-orange); padding-bottom: 0.5rem;">
+                    Mis Últimas Respuestas
+                </h3>
+                <?php if (count($mis_respuestas) > 0): ?>
+                    <div class="activity-list">
+                        <?php foreach ($mis_respuestas as $respuesta): ?>
+                            <div class="activity-item">
+                                <div class="activity-title">
+                                    <span style="font-size: 0.9em; color: #888;">En: </span>
+                                    <a href="pregunta.php?id=<?= $respuesta['id_pregunta'] ?>">
+                                        <?= htmlspecialchars($respuesta['titulo_pregunta']) ?>
+                                    </a>
+                                </div>
+                                <div style="font-size: 0.95rem; margin: 5px 0; color: #ddd;">
+                                    "<?= htmlspecialchars(substr($respuesta['contenido'], 0, 60)) . (strlen($respuesta['contenido']) > 60 ? '...' : '') ?>"
+                                </div>
+                                <div class="activity-meta">
+                                    📅 <?= date('d/m/Y H:i', strtotime($respuesta['fecha'])) ?>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php else: ?>
+                    <p class="text-muted">No has respondido a ninguna pregunta aún.</p>
+                <?php endif; ?>
+            </div>
+
+        </div>
+
+    </div>
+    
+    <script src="assets/js/main.js"></script>
 </body>
 </html>
