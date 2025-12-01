@@ -51,25 +51,25 @@ if (!$usuario) {
 // Obtener estadísticas
 // 1. Número de preguntas (publicaciones sin padre)
 $stmt_preguntas = $conn->prepare("SELECT COUNT(*) FROM tbl_publicaciones WHERE id_autor = :id AND id_padre IS NULL");
-$stmt_preguntas->bindParam(':id', $user_id);
+$stmt_preguntas->bindParam(':id', $profile_id);
 $stmt_preguntas->execute();
 $num_preguntas = $stmt_preguntas->fetchColumn();
 
 // 2. Número de respuestas (publicaciones con padre)
 $stmt_respuestas = $conn->prepare("SELECT COUNT(*) FROM tbl_publicaciones WHERE id_autor = :id AND id_padre IS NOT NULL");
-$stmt_respuestas->bindParam(':id', $user_id);
+$stmt_respuestas->bindParam(':id', $profile_id);
 $stmt_respuestas->execute();
 $num_respuestas = $stmt_respuestas->fetchColumn();
 
 // 3. Likes dados
 $stmt_likes = $conn->prepare("SELECT COUNT(*) FROM tbl_likes WHERE id_usuario = :id");
-$stmt_likes->bindParam(':id', $user_id);
+$stmt_likes->bindParam(':id', $profile_id);
 $stmt_likes->execute();
 $num_likes = $stmt_likes->fetchColumn();
 
 // Obtener últimas preguntas
 $stmt_last_questions = $conn->prepare("SELECT * FROM tbl_publicaciones WHERE id_autor = :id AND id_padre IS NULL ORDER BY fecha DESC LIMIT 5");
-$stmt_last_questions->bindParam(':id', $user_id);
+$stmt_last_questions->bindParam(':id', $profile_id);
 $stmt_last_questions->execute();
 $mis_preguntas = $stmt_last_questions->fetchAll(PDO::FETCH_ASSOC);
 
@@ -81,7 +81,7 @@ $stmt_last_answers = $conn->prepare("
     WHERE r.id_autor = :id AND r.id_padre IS NOT NULL 
     ORDER BY r.fecha DESC LIMIT 5
 ");
-$stmt_last_answers->bindParam(':id', $user_id);
+$stmt_last_answers->bindParam(':id', $profile_id);
 $stmt_last_answers->execute();
 $mis_respuestas = $stmt_last_answers->fetchAll(PDO::FETCH_ASSOC);
 
@@ -94,135 +94,7 @@ $mis_respuestas = $stmt_last_answers->fetchAll(PDO::FETCH_ASSOC);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Perfil - Foro</title>
     <link rel="stylesheet" href="assets/css/style.css">
-    <style>
-        .profile-header {
-            display: flex;
-            align-items: center;
-            gap: 2rem;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-            background: var(--bg-card, #1e1e1e); /* Fallback color */
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        .profile-avatar {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            border: 4px solid var(--color-orange, #ff6b00);
-            object-fit: cover;
-            box-shadow: 0 0 15px rgba(255, 107, 0, 0.3);
-        }
-        .profile-info {
-            flex: 1;
-        }
-        .profile-info h1 {
-            margin: 0 0 0.5rem 0;
-            font-size: 2.5rem;
-            color: var(--text-primary, #fff);
-        }
-        .profile-info p {
-            font-size: 1.1rem;
-            color: var(--text-secondary, #aaa);
-            margin-bottom: 0.5rem;
-        }
-        .profile-actions {
-            margin-top: 1.5rem;
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-        .profile-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-        .detail-item {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 1.5rem;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .detail-label {
-            display: block;
-            font-size: 0.9rem;
-            color: var(--color-orange, #ff6b00);
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .detail-value {
-            font-size: 1.2rem;
-            color: var(--text-primary, #fff);
-            font-weight: 500;
-        }
-        
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1.5rem;
-            margin: 2rem 0;
-        }
-        .stat-item {
-            background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
-            padding: 1.5rem;
-            border-radius: 10px;
-            text-align: center;
-            border: 1px solid rgba(255,255,255,0.05);
-            transition: transform 0.2s;
-        }
-        .stat-item:hover {
-            transform: translateY(-5px);
-            border-color: var(--color-orange, #ff6b00);
-        }
-        .stat-value {
-            display: block;
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--color-orange, #ff6b00);
-            margin-bottom: 0.5rem;
-        }
-        .stat-label {
-            color: var(--text-secondary, #aaa);
-            font-size: 0.9rem;
-        }
-
-        .activity-section {
-            margin-top: 3rem;
-        }
-        .activity-list {
-            display: grid;
-            gap: 1rem;
-        }
-        .activity-item {
-            background: rgba(255,255,255,0.03);
-            padding: 1rem;
-            border-radius: 8px;
-            border-left: 3px solid var(--color-orange, #ff6b00);
-            transition: background 0.2s;
-        }
-        .activity-item:hover {
-            background: rgba(255,255,255,0.06);
-        }
-        .activity-title {
-            font-size: 1.1rem;
-            margin-bottom: 0.5rem;
-        }
-        .activity-title a {
-            color: var(--text-primary, #fff);
-            text-decoration: none;
-        }
-        .activity-title a:hover {
-            color: var(--color-orange, #ff6b00);
-        }
-        .activity-meta {
-            font-size: 0.85rem;
-            color: var(--text-secondary, #aaa);
-        }
-    </style>
+    <link rel="stylesheet" href="assets/css/profile.css">
 </head>
 <body>
 
@@ -232,7 +104,7 @@ $mis_respuestas = $stmt_last_answers->fetchAll(PDO::FETCH_ASSOC);
             <ul class="nav-links">
                 <li><a href="index.php">Inicio</a></li>
                 <li><a href="crear_pregunta.php">Nueva Pregunta</a></li>
-                <li><a href="perfil.php" class="active" style="color: var(--color-orange);">Perfil</a></li>
+                <li><a href="perfil.php" class="active">Perfil</a></li>
                 <li><a href="./view/logout.php">Cerrar Sesión</a></li>
             </ul>
         </nav>
@@ -304,7 +176,7 @@ $mis_respuestas = $stmt_last_answers->fetchAll(PDO::FETCH_ASSOC);
             </div>
         </div>
 
-        <h2 style="margin-top: 3rem; margin-bottom: 1.5rem;">Mis Estadísticas</h2>
+        <h2 class="profile-stats-title">Mis Estadísticas</h2>
         
         <div class="stats">
             <div class="stat-item">
@@ -321,11 +193,11 @@ $mis_respuestas = $stmt_last_answers->fetchAll(PDO::FETCH_ASSOC);
             </div>
         </div>
 
-        <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 3rem;">
+        <div class="grid profile-grid-sections">
             
             <!-- Mis Últimas Preguntas -->
             <div>
-                <h3 style="margin-bottom: 1rem; border-bottom: 2px solid var(--color-orange); padding-bottom: 0.5rem;">
+                <h3 class="section-title-profile">
                     Mis Últimas Preguntas
                 </h3>
                 <?php if (count($mis_preguntas) > 0): ?>
@@ -345,13 +217,13 @@ $mis_respuestas = $stmt_last_answers->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                 <?php else: ?>
                     <p class="text-muted">No has hecho ninguna pregunta aún.</p>
-                    <a href="crear_pregunta.php" class="btn btn-sm btn-primary" style="margin-top: 10px;">Hacer una pregunta</a>
+                    <a href="crear_pregunta.php" class="btn btn-sm btn-primary btn-margin-top">Hacer una pregunta</a>
                 <?php endif; ?>
             </div>
 
             <!-- Mis Últimas Respuestas -->
             <div>
-                <h3 style="margin-bottom: 1rem; border-bottom: 2px solid var(--color-orange); padding-bottom: 0.5rem;">
+                <h3 class="section-title-profile">
                     Mis Últimas Respuestas
                 </h3>
                 <?php if (count($mis_respuestas) > 0): ?>
@@ -359,12 +231,12 @@ $mis_respuestas = $stmt_last_answers->fetchAll(PDO::FETCH_ASSOC);
                         <?php foreach ($mis_respuestas as $respuesta): ?>
                             <div class="activity-item">
                                 <div class="activity-title">
-                                    <span style="font-size: 0.9em; color: #888;">En: </span>
+                                    <span class="activity-label">En: </span>
                                     <a href="pregunta.php?id=<?= $respuesta['id_pregunta'] ?>">
                                         <?= htmlspecialchars($respuesta['titulo_pregunta']) ?>
                                     </a>
                                 </div>
-                                <div style="font-size: 0.95rem; margin: 5px 0; color: #ddd;">
+                                <div class="activity-content">
                                     "<?= htmlspecialchars(substr($respuesta['contenido'], 0, 60)) . (strlen($respuesta['contenido']) > 60 ? '...' : '') ?>"
                                 </div>
                                 <div class="activity-meta">
