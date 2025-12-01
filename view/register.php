@@ -25,7 +25,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $passwordHash = password_hash($password, PASSWORD_BCRYPT);
 
-        $stmt = $conn->prepare("INSERT INTO tbl_usuarios (username, nombre, apellidos, email, fecha_nacimiento, genero, password) VALUES (:username, :nombre, :apellidos, :email, :fecha_nacimiento, :genero, :password)");
+        $stmt = $conn->prepare("INSERT INTO tbl_usuarios 
+        (username, nombre, apellidos, email, fecha_nacimiento, genero, password) 
+        VALUES (:username, :nombre, :apellidos, :email, :fecha_nacimiento, :genero, :password)");
+        
         $stmt->execute([
             'username' => $username,
             'nombre' => $nombre,
@@ -170,6 +173,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
     </div>
 </div>
-
 </body>
 </html>
