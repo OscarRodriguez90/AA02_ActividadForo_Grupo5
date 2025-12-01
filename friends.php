@@ -59,10 +59,10 @@ if (isset($_GET['search']) && !empty($_GET['search'])) {
     try {
         // Buscar usuarios que NO soy yo
         $stmt = $conn->prepare("
-            SELECT u.*, 
+            SELECT u.id, u.username as nombre_usuario, CONCAT(u.nombre, ' ', u.apellidos) as nombre_real,
             (SELECT estado FROM tbl_amistades WHERE (id_usuario1 = u.id AND id_usuario2 = :me) OR (id_usuario1 = :me AND id_usuario2 = u.id)) as friendship_status
             FROM tbl_usuarios u 
-            WHERE u.nombre_usuario LIKE :search AND u.id != :me
+            WHERE (u.username LIKE :search OR u.nombre LIKE :search OR u.apellidos LIKE :search) AND u.id != :me
         ");
         $stmt->bindParam(':search', $search);
         $stmt->bindParam(':me', $my_id);
@@ -79,7 +79,7 @@ if (isset($_GET['search']) && !empty($_GET['search'])) {
 try {
     // Mis amigos
     $stmt = $conn->prepare("
-        SELECT u.id, u.nombre_usuario, u.email 
+        SELECT u.id, u.username as nombre_usuario, u.email 
         FROM tbl_usuarios u
         JOIN tbl_amistades f ON (f.id_usuario1 = u.id OR f.id_usuario2 = u.id)
         WHERE (f.id_usuario1 = :me OR f.id_usuario2 = :me) 
@@ -92,7 +92,7 @@ try {
 
     // Solicitudes recibidas
     $stmt = $conn->prepare("
-        SELECT f.id as friendship_id, u.id as user_id, u.nombre_usuario 
+        SELECT f.id as friendship_id, u.id as user_id, u.username as nombre_usuario 
         FROM tbl_amistades f
         JOIN tbl_usuarios u ON f.id_usuario1 = u.id
         WHERE f.id_usuario2 = :me AND f.estado = 'pendiente'

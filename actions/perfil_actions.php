@@ -7,9 +7,9 @@
 session_start();
 require_once __DIR__ . '/../config/conexion.php';
 
-// HARDCODE: Simular usuario logueado si no existe
 if (!isset($_SESSION['user_id'])) {
-    $_SESSION['user_id'] = 1;
+    header("Location: view/login.php");
+    exit;
 }
 
 $my_id = $_SESSION['user_id'];
@@ -74,7 +74,7 @@ if (isset($_POST['send_friend_request'])) {
 function getUserInfo($conn, $user_id) {
     try {
         $stmt = $conn->prepare("
-            SELECT id, nombre_usuario, nombre_real, email 
+            SELECT id, username as nombre_usuario, CONCAT(nombre, ' ', apellidos) as nombre_real, email 
             FROM tbl_usuarios 
             WHERE id = :id
         ");
@@ -191,17 +191,9 @@ function getUserPosts($conn, $user_id, $viewer_id, $limit = 5) {
 $user = getUserInfo($conn, $profile_id);
 
 // Si no existe el usuario, redirigir
-// Si no existe el usuario, usar datos mockeados para desarrollo
 if (!$user) {
-    // MOCK DATA
-    $user = [
-        'id' => $profile_id,
-        'nombre_usuario' => 'Usuario_Test_' . $profile_id,
-        'nombre_real' => 'Nombre Real Test',
-        'email' => 'test' . $profile_id . '@example.com'
-    ];
-    // header('Location: ../friends.php');
-    // exit;
+    header('Location: friends.php');
+    exit;
 }
 
 // Verificar estado de amistad

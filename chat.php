@@ -36,10 +36,7 @@ try {
     $friends = [];
 }
 
-// HARDCODE: Si no hay amigos en la BD, simulamos uno para probar la interfaz (ID 2)
-if (empty($friends)) {
-    $friends[] = ['id' => 2, 'username' => 'Amigo Ficticio'];
-}
+
 
 // --------------------------------------------------------------------------------
 // 4. VALIDACIÓN DE SEGURIDAD (¿Es realmente mi amigo?)
