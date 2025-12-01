@@ -18,19 +18,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute(['u' => $usuario_o_email]);
         $usuario = $stmt->fetch();
 
-<<<<<<< HEAD
-        if ($usuario && password_verify($password, $usuario['password'])) {
-
-            $_SESSION['usuario_id'] = $usuario['id'];
-            $_SESSION['username'] = $usuario['username'];
-
-            header("Location: panel.php");
-=======
         if($usuario && password_verify($password,$usuario['password'])){
             $_SESSION['user_id']=$usuario['id'];
             $_SESSION['username']=$usuario['username'];
             header("Location: ../index.php");
->>>>>>> e64d5eaf44c667dd8ef8a6610b1874f69c2b1724
             exit();
 
         } else {
@@ -44,31 +35,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-<<<<<<< HEAD
-    <title>Login</title>
-    <link rel="stylesheet" href="../estilos/style.css">
-</head>
-<body>
-
-<form method="post" action="login.php">
-
-    <input type="text" name="usuario_o_email" placeholder="Usuario o correo electrónico"
-           value="<?= isset($usuario_o_email) ? htmlspecialchars($usuario_o_email) : '' ?>">
-    <div class="mensaje-error">
-        <?php foreach ($errores as $e) if (str_contains($e, "usuario") || str_contains($e, "correo")) echo $e; ?>
-    </div>
-
-    <input type="password" name="password" placeholder="Contraseña">
-    <div class="mensaje-error">
-        <?php foreach ($errores as $e) if (str_contains($e, "contraseña")) echo $e; ?>
-    </div>
-
-    <button type="submit">Iniciar sesión</button>
-</form>
-
-<p>¿No tienes cuenta? <a href="register.php">Regístrate aquí</a></p>
-
-=======
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iniciar Sesión - Foro</title>
     <link rel="stylesheet" href="../assets/css/style.css">
@@ -113,6 +79,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </p>
         </div>
     </div>
->>>>>>> e64d5eaf44c667dd8ef8a6610b1874f69c2b1724
 </body>
 </html>
