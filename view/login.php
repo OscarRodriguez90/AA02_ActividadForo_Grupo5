@@ -3,17 +3,19 @@ session_start();
 require '../config/conexion.php';
 require '../proc/validaciones.php';
 
-$errores=[];
+$errores = [];
 
-if($_SERVER['REQUEST_METHOD']==='POST'){
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
     $usuario_o_email = trim($_POST['usuario_o_email']);
     $password = $_POST['password'];
 
-    $errores = validarLogin($usuario_o_email,$password);
+    $errores = validarLogin($usuario_o_email, $password);
 
-    if(empty($errores)){
-        $stmt=$conn->prepare("SELECT * FROM tbl_usuarios WHERE username=:u OR email=:u");
-        $stmt->execute(['u'=>$usuario_o_email]);
+    if (empty($errores)) {
+
+        $stmt = $conn->prepare("SELECT * FROM tbl_usuarios WHERE username = :u OR email = :u");
+        $stmt->execute(['u' => $usuario_o_email]);
         $usuario = $stmt->fetch();
 
         if($usuario && password_verify($password,$usuario['password'])){
@@ -21,7 +23,10 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
             $_SESSION['username']=$usuario['username'];
             header("Location: ../index.php");
             exit();
-        } else $errores[]="Usuario o contraseña incorrectos.";
+
+        } else {
+            $errores[] = "Usuario o contraseña incorrectos.";
+        }
     }
 }
 ?>
