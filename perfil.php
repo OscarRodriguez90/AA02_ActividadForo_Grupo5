@@ -256,9 +256,9 @@ $mis_respuestas = $stmt_last_answers->fetchAll(PDO::FETCH_ASSOC);
                         <a href="editar_perfil.php" class="btn btn-secondary">
                             ✏️ Editar Perfil
                         </a>
-                        <button onclick="alert('Funcionalidad de cambio de contraseña próximamente')" class="btn btn-secondary">
+                        <a href="./cambiar_password.php" class="btn btn-secondary">
                             🔒 Cambiar Contraseña
-                        </button>
+                        </a>
                     <?php else: ?>
                         <!-- Botones para otros usuarios -->
                         <?php if (!$friendship_status): ?>
