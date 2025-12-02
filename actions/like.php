@@ -5,7 +5,7 @@ require_once '../config/conexion.php';
 // 1. Verificar Autenticación
 if (!isset($_SESSION['user_id'])) {
     // Si no está logueado, redirigir al login
-    header("Location: ../login.php");
+    header("Location: ../view/login.php");
     exit;
 }
 

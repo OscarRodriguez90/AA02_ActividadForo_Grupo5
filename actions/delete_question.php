@@ -47,6 +47,10 @@ try {
         $conn->exec("DELETE FROM tbl_archivos WHERE id_publicacion IN ($ids_string)");
     }
 
+    if (!empty($ids_string)) {
+        $conn->exec("DELETE FROM tbl_likes WHERE id_publicacion IN ($ids_string)");
+    }
+
     $sqlDelResp = "DELETE FROM tbl_publicaciones WHERE id_padre = :id";
     $stmtDelResp = $conn->prepare($sqlDelResp);
     $stmtDelResp->execute([':id' => $id_pregunta]);
