@@ -51,25 +51,25 @@ if (!$usuario) {
 // Obtener estadísticas
 // 1. Número de preguntas (publicaciones sin padre)
 $stmt_preguntas = $conn->prepare("SELECT COUNT(*) FROM tbl_publicaciones WHERE id_autor = :id AND id_padre IS NULL");
-$stmt_preguntas->bindParam(':id', $user_id);
+$stmt_preguntas->bindParam(':id', $profile_id);
 $stmt_preguntas->execute();
 $num_preguntas = $stmt_preguntas->fetchColumn();
 
 // 2. Número de respuestas (publicaciones con padre)
 $stmt_respuestas = $conn->prepare("SELECT COUNT(*) FROM tbl_publicaciones WHERE id_autor = :id AND id_padre IS NOT NULL");
-$stmt_respuestas->bindParam(':id', $user_id);
+$stmt_respuestas->bindParam(':id', $profile_id);
 $stmt_respuestas->execute();
 $num_respuestas = $stmt_respuestas->fetchColumn();
 
 // 3. Likes dados
 $stmt_likes = $conn->prepare("SELECT COUNT(*) FROM tbl_likes WHERE id_usuario = :id");
-$stmt_likes->bindParam(':id', $user_id);
+$stmt_likes->bindParam(':id', $profile_id);
 $stmt_likes->execute();
 $num_likes = $stmt_likes->fetchColumn();
 
 // Obtener últimas preguntas
 $stmt_last_questions = $conn->prepare("SELECT * FROM tbl_publicaciones WHERE id_autor = :id AND id_padre IS NULL ORDER BY fecha DESC LIMIT 5");
-$stmt_last_questions->bindParam(':id', $user_id);
+$stmt_last_questions->bindParam(':id', $profile_id);
 $stmt_last_questions->execute();
 $mis_preguntas = $stmt_last_questions->fetchAll(PDO::FETCH_ASSOC);
 
@@ -81,7 +81,7 @@ $stmt_last_answers = $conn->prepare("
     WHERE r.id_autor = :id AND r.id_padre IS NOT NULL 
     ORDER BY r.fecha DESC LIMIT 5
 ");
-$stmt_last_answers->bindParam(':id', $user_id);
+$stmt_last_answers->bindParam(':id', $profile_id);
 $stmt_last_answers->execute();
 $mis_respuestas = $stmt_last_answers->fetchAll(PDO::FETCH_ASSOC);
 

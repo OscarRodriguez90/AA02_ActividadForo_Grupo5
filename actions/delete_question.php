@@ -2,13 +2,18 @@
 session_start();
 require_once '../config/conexion.php';
 
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../view/login.php');
+    exit;
+}
+
 if (!isset($_GET['id'])) {
     header('Location: ../index.php');
     exit;
 }
 
 $id_pregunta = $_GET['id'];
-$id_usuario_actual = $_SESSION['user_id'] ?? 1;
+$id_usuario_actual = $_SESSION['user_id'];
 
 try {
     $conn->beginTransaction();

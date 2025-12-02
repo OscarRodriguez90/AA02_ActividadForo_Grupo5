@@ -132,5 +132,5 @@ ALTER TABLE tbl_archivos
 -- DATOS DE EJEMPLO
 -- =====================================
 
-INSERT INTO tbl_usuarios (nombre_usuario, nombre_real, email, contraseña) VALUES
-('admin', 'Administrador del foro', 'admin@foro.com', 'HASH_BCRYPT_AQUI');
+INSERT INTO tbl_usuarios (username, nombre, apellidos, email, fecha_nacimiento, genero, password) VALUES
+('admin', 'Admin', 'Del Foro', 'admin@foro.com', '1990-01-01', 'otro', 'HASH_BCRYPT_AQUI');

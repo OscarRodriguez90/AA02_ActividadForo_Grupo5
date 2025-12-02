@@ -19,6 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $usuario = $stmt->fetch();
 
         if($usuario && password_verify($password,$usuario['password'])){
+            session_regenerate_id(true);
             $_SESSION['user_id']=$usuario['id'];
             $_SESSION['username']=$usuario['username'];
             header("Location: ../index.php");

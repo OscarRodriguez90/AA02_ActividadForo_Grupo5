@@ -2,13 +2,18 @@
 session_start();
 require_once '../config/conexion.php';
 
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../view/login.php');
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $id_pregunta = $_POST['id'];
     $titulo      = $_POST['title'];
     $contenido   = $_POST['description'];
     
-    $id_usuario_actual = $_SESSION['user_id'] ?? 1;
+    $id_usuario_actual = $_SESSION['user_id'];
 
     try {
         $sqlCheck = "SELECT id_autor FROM tbl_publicaciones WHERE id = :id";
