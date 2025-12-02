@@ -60,51 +60,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cambiar Contraseña</title>
     <link rel="stylesheet" href="assets/css/style.css">
-
-    <style>
-        .card {
-            max-width: 500px;
-            margin: 3rem auto;
-            background: var(--bg-card, #1e1e1e);
-            padding: 2rem;
-            border-radius: 12px;
-        }
-        .card h2 {
-            margin-bottom: 1rem;
-            color: var(--color-orange);
-        }
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        label {
-            color: #ccc;
-            font-size: 0.9rem;
-        }
-        input {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            border-radius: 8px;
-            border: 1px solid #555;
-            background: #2b2b2b;
-            color: white;
-        }
-        .btn-primary {
-            margin-top: 1rem;
-            width: 100%;
-        }
-        .mensaje {
-            text-align: center;
-            margin-bottom: 1rem;
-            font-size: 1rem;
-        }
-    </style>
 </head>
 <body>
 
 <header>
     <nav>
-        <a href="index.php" class="logo">Foro</a>
+        <a href="index.php" class="logo">TBForo</a>
         <ul class="nav-links">
             <li><a href="index.php">Inicio</a></li>
             <li><a href="crear_pregunta.php">Nueva Pregunta</a></li>
@@ -120,11 +81,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </nav>
 </header>
 
-<div class="card">
+<div class="card password-card">
     <h2>🔒 Cambiar Contraseña</h2>
 
     <?php if (!empty($mensaje)): ?>
-        <p class="mensaje"><?= $mensaje ?></p>
+        <p class="password-message"><?= $mensaje ?></p>
     <?php endif; ?>
 
     <form method="POST">

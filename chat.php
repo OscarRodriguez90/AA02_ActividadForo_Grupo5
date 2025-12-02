@@ -181,11 +181,6 @@ if ($chat_with_id) {
                 <button type="submit" class="chat-send-btn">Enviar ➤</button>
             </form>
         </div>
-        
-        <script>
-            const container = document.getElementById('messages-container');
-            container.scrollTop = container.scrollHeight;
-        </script>
     <?php else: ?>
         <div class="no-chat-selected">
             <div class="no-chat-icon">💬</div>
@@ -206,5 +201,6 @@ if (isset($_GET['logout'])) {
     exit;
 }
 ?>
+<script src="assets/js/main.js"></script>
 </body>
 </html>

@@ -1,10 +1,19 @@
-window.onload = () => {
+const initRegisterValidations = () => {
     const campos = ["username", "nombre", "apellidos", "email", "fecha_nacimiento", "genero", "password", "confirmar_password"];
-    campos.forEach(id => {
-        const e = document.getElementById(id);
-        if (e) e.onblur = validar;
+    let hasFields = false;
+
+    campos.forEach((id) => {
+        const campo = document.getElementById(id);
+
+        if (campo) {
+            campo.onblur = validar;
+            hasFields = true;
+        }
     });
-    validarTodo();
+
+    if (hasFields) {
+        validarTodo();
+    }
 };
 
 function validar(e) {
@@ -192,11 +201,20 @@ function validarTodoEditarPerfil() {
 // Inicializar validaciones para editar_perfil.php
 function iniciarValidacionesEditarPerfil() {
     const camposEditarPerfil = ["nombre", "apellidos", "email", "fecha_nacimiento", "genero"];
+    let hasCampos = false;
     camposEditarPerfil.forEach(id => {
         const elemento = document.getElementById(id);
         if (elemento) {
             elemento.onblur = validarEditarPerfil;
+            hasCampos = true;
         }
     });
-    validarTodoEditarPerfil();
+    if (hasCampos) {
+        validarTodoEditarPerfil();
+    }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    initRegisterValidations();
+    iniciarValidacionesEditarPerfil();
+});
