@@ -1,19 +1,21 @@
 const initRegisterValidations = () => {
+    const formRegistro = document.getElementById('formRegistro');
+
+    if (!formRegistro) {
+        return;
+    }
+
     const campos = ["username", "nombre", "apellidos", "email", "fecha_nacimiento", "genero", "password", "confirmar_password"];
-    let hasFields = false;
 
     campos.forEach((id) => {
         const campo = document.getElementById(id);
 
         if (campo) {
             campo.onblur = validar;
-            hasFields = true;
         }
     });
 
-    if (hasFields) {
-        validarTodo();
-    }
+    validarTodo();
 };
 
 function validar(e) {
@@ -214,7 +216,65 @@ function iniciarValidacionesEditarPerfil() {
     }
 }
 
+function validarCampoLogin(e) {
+    const campo = e.target;
+    const id = campo.id;
+    const val = campo.value.trim();
+    let msg = "";
+
+    if (!val) {
+        msg = id === 'usuario_o_email'
+            ? 'El usuario o email es obligatorio.'
+            : 'La contraseña es obligatoria.';
+    }
+
+    const errorDiv = document.getElementById('error-' + id);
+    if (msg) {
+        campo.classList.add('error-border');
+        if (errorDiv) errorDiv.textContent = msg;
+    } else {
+        campo.classList.remove('error-border');
+        if (errorDiv) errorDiv.textContent = '';
+    }
+
+    validarTodoLogin();
+}
+
+function validarTodoLogin() {
+    const campos = ['usuario_o_email', 'password'];
+    let hayErrores = false;
+
+    campos.forEach(id => {
+        const input = document.getElementById(id);
+        const errorDiv = document.getElementById('error-' + id);
+
+        if ((errorDiv && errorDiv.textContent.trim() !== '') || (input && input.value.trim() === '')) {
+            hayErrores = true;
+        }
+    });
+
+    const btn = document.getElementById('btnLogin');
+    if (btn) btn.disabled = hayErrores;
+}
+
+const initLoginValidations = () => {
+    const formLogin = document.getElementById('formLogin');
+    if (!formLogin) {
+        return;
+    }
+
+    ['usuario_o_email', 'password'].forEach(id => {
+        const campo = document.getElementById(id);
+        if (campo) {
+            campo.addEventListener('blur', validarCampoLogin);
+        }
+    });
+
+    validarTodoLogin();
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     initRegisterValidations();
     iniciarValidacionesEditarPerfil();
+    initLoginValidations();
 });

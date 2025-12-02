@@ -53,13 +53,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             <?php endif; ?>
 
-            <form method="post" action="login.php">
+            <form method="post" action="login.php" id="formLogin">
                 <div class="form-group">
                     <label for="usuario_o_email">Usuario o Correo Electrónico</label>
                     <input type="text" 
                            id="usuario_o_email"
                            name="usuario_o_email" 
                            placeholder="Introduce tu usuario o email" >
+                    <div id="error-usuario_o_email" class="mensaje-error" style="color: #ef4444; font-size: 0.85rem; margin-top: 0.5rem;"></div>
                 </div>
 
                 <div class="form-group">
@@ -68,9 +69,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                            id="password"
                            name="password" 
                            placeholder="Introduce tu contraseña" >
+                    <div id="error-password" class="mensaje-error" style="color: #ef4444; font-size: 0.85rem; margin-top: 0.5rem;"></div>
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+                <button type="submit" id="btnLogin" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
                     Iniciar Sesión
                 </button>
             </form>
@@ -80,5 +82,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </p>
         </div>
     </div>
+    <script src="../assets/js/validaciones.js"></script>
 </body>
 </html>
