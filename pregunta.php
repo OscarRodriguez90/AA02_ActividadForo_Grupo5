@@ -108,8 +108,7 @@ $respuestas = $stmtResp->fetchAll(PDO::FETCH_ASSOC);
                     
                     <a href="actions/delete_question.php?id=<?= $pregunta['id'] ?>" 
                        class="btn btn-primary btn-sm"
-                       style="background: #dc3545; border-color: #dc3545;"
-                       onclick="return confirm('¿Estás seguro de que quieres borrar esta pregunta? Se borrarán también las respuestas.');">
+                       style="background: #dc3545; border-color: #dc3545;">
                         🗑️ Eliminar
                     </a>
                 </div>
