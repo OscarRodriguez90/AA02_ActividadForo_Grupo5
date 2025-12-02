@@ -131,11 +131,19 @@ try {
 
 <header>
     <nav>
-        <div class="logo">Foro<span class="username-highlight">Chat</span></div>
-        <div class="nav-links">
-            <a href="chat.php">Volver al Chat</a>
-            <a href="./index.php">Foro</a>
-        </div>
+        <a href="index.php" class="logo">Foro</a>
+        <ul class="nav-links">
+            <li><a href="index.php">Inicio</a></li>
+            <li><a href="crear_pregunta.php">Nueva Pregunta</a></li>
+            <li><a href="perfil.php">Perfil</a></li>
+            <li><a href="friends.php" class="active" style="color: var(--color-orange);">Amigos</a></li>
+            <li><a href="chat.php">Chat</a></li>
+            <?php if(isset($_SESSION['user_id'])): ?>
+                <li><a href="view/logout.php">Cerrar Sesión</a></li>
+            <?php else: ?>
+                <li><a href="view/login.php">Iniciar Sesión</a></li>
+            <?php endif; ?>
+        </ul>
     </nav>
 </header>
 

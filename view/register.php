@@ -1,4 +1,5 @@
 <?php
+session_start();
 require '../config/conexion.php';
 require '../proc/validaciones.php';
 
@@ -74,6 +75,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="../js/validaciones.js"></script>
 </head>
 <body>
+
+<header>
+    <nav>
+        <a href="../index.php" class="logo">Foro</a>
+        <ul class="nav-links">
+            <li><a href="../index.php">Inicio</a></li>
+            <li><a href="../crear_pregunta.php">Nueva Pregunta</a></li>
+            <li><a href="../perfil.php">Perfil</a></li>
+            <li><a href="../friends.php">Amigos</a></li>
+            <li><a href="../chat.php">Chat</a></li>
+            <?php if(isset($_SESSION['user_id'])): ?>
+                <li><a href="logout.php">Cerrar Sesión</a></li>
+            <?php else: ?>
+                <li><a href="login.php">Iniciar Sesión</a></li>
+            <?php endif; ?>
+        </ul>
+    </nav>
+</header>
 
 <div class="container" style="max-width: 600px; margin-top: 3rem; margin-bottom: 3rem;">
     <div class="card">
