@@ -139,6 +139,7 @@ try {
             <li><a href="friends.php" class="active" style="color: var(--color-orange);">Amigos</a></li>
             <li><a href="chat.php">Chat</a></li>
             <?php if(isset($_SESSION['user_id'])): ?>
+                <li class="welcome-text">Bienvenido <?= htmlspecialchars($_SESSION['username'] ?? '') ?></li>
                 <li><a href="view/logout.php">Cerrar Sesión</a></li>
             <?php else: ?>
                 <li><a href="view/login.php">Iniciar Sesión</a></li>
