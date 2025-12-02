@@ -1,0 +1,144 @@
+<?php
+session_start();
+require_once 'config/conexion.php';
+
+// Verificar login
+if (!isset($_SESSION['user_id'])) {
+    header("Location: view/login.php");
+    exit();
+}
+
+$user_id = $_SESSION['user_id'];
+$mensaje = "";
+
+// Procesar formulario
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+
+    $password_actual = $_POST['password_actual'] ?? '';
+    $password_nueva = $_POST['password_nueva'] ?? '';
+    $password_repite = $_POST['password_repite'] ?? '';
+
+    // Validar campos vacíos
+    if (empty($password_actual) || empty($password_nueva) || empty($password_repite)) {
+        $mensaje = "⚠️ Todos los campos son obligatorios.";
+    } else if ($password_nueva !== $password_repite) {
+        $mensaje = "❌ Las contraseñas nuevas no coinciden.";
+    } else {
+
+        // Obtener contraseña actual
+        $stmt = $conn->prepare("SELECT password FROM tbl_usuarios WHERE id = :id");
+        $stmt->bindParam(':id', $user_id);
+        $stmt->execute();
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$user || !password_verify($password_actual, $user['password'])) {
+            $mensaje = "❌ La contraseña actual no es correcta.";
+        } else {
+            // Actualizar contraseña
+            $hash = password_hash($password_nueva, PASSWORD_DEFAULT);
+
+            $stmt_update = $conn->prepare("
+                UPDATE tbl_usuarios SET password = :pass WHERE id = :id
+            ");
+            $stmt_update->bindParam(':pass', $hash);
+            $stmt_update->bindParam(':id', $user_id);
+
+            if ($stmt_update->execute()) {
+                $mensaje = "✅ Contraseña cambiada correctamente.";
+            } else {
+                $mensaje = "⚠️ Error inesperado, intenta nuevamente.";
+            }
+        }
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cambiar Contraseña</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+
+    <style>
+        .card {
+            max-width: 500px;
+            margin: 3rem auto;
+            background: var(--bg-card, #1e1e1e);
+            padding: 2rem;
+            border-radius: 12px;
+        }
+        .card h2 {
+            margin-bottom: 1rem;
+            color: var(--color-orange);
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        label {
+            color: #ccc;
+            font-size: 0.9rem;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 8px;
+            border: 1px solid #555;
+            background: #2b2b2b;
+            color: white;
+        }
+        .btn-primary {
+            margin-top: 1rem;
+            width: 100%;
+        }
+        .mensaje {
+            text-align: center;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <nav>
+        <a href="index.php" class="logo">Foro</a>
+        <ul class="nav-links">
+            <li><a href="index.php">Inicio</a></li>
+            <li><a href="perfil.php" class="active">Volver al Perfil</a></li>
+            <li><a href="./view/logout.php">Cerrar Sesión</a></li>
+        </ul>
+    </nav>
+</header>
+
+<div class="card">
+    <h2>🔒 Cambiar Contraseña</h2>
+
+    <?php if (!empty($mensaje)): ?>
+        <p class="mensaje"><?= $mensaje ?></p>
+    <?php endif; ?>
+
+    <form method="POST">
+        <div class="form-group">
+            <label>Contraseña Actual</label>
+            <input type="password" name="password_actual" required>
+        </div>
+
+        <div class="form-group">
+            <label>Nueva Contraseña</label>
+            <input type="password" name="password_nueva" required>
+        </div>
+
+        <div class="form-group">
+            <label>Repetir Nueva Contraseña</label>
+            <input type="password" name="password_repite" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+    </form>
+</div>
+
+</body>
+</html>

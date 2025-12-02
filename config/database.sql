@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS tbl_publicaciones (
     fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )ENGINE=InnoDB;
 
+
 -- Tabla de etiquetas
 CREATE TABLE IF NOT EXISTS tbl_etiquetas (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -88,7 +89,7 @@ ALTER TABLE tbl_publicaciones
 
 -- Relaciones publicación-etiqueta
 ALTER TABLE tbl_publicacion_etiqueta
-    ADD CONSTRAINT fk_pubeti_publicacion
+    ADD CONSTRAINT fk_pubeti_publica
     FOREIGN KEY (id_publicacion) REFERENCES tbl_publicaciones(id);
 
 ALTER TABLE tbl_publicacion_etiqueta
