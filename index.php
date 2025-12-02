@@ -39,7 +39,7 @@ $preguntas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <header>
         <nav>
-            <a href="index.php" class="logo">Foro</a>
+            <a href="index.php" class="logo">TBForo</a>
             <ul class="nav-links">
                 <li><a href="index.php">Inicio</a></li>
                 <li><a href="crear_pregunta.php">Nueva Pregunta</a></li>

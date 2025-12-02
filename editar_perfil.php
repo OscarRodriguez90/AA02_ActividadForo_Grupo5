@@ -77,6 +77,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Perfil - Foro</title>
     <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        input[type="date"] {
+            width: 100%;
+            padding: var(--spacing-sm);
+            background: rgba(26, 26, 26, 0.8);
+            border: 2px solid rgba(255, 107, 53, 0.2);
+            border-radius: var(--radius-md);
+            color: var(--color-white);
+            font-family: var(--font-primary);
+            font-size: 1rem;
+            transition: all var(--transition-normal);
+        }
+        input[type="date"]:focus {
+            outline: none;
+            border-color: var(--color-orange);
+            box-shadow: 0 0 0 3px var(--color-orange-glow);
+            background: rgba(26, 26, 26, 0.95);
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+        }
+    </style>
 </head>
 <body>
 
@@ -155,7 +177,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
-    <script src="js/validaciones.js"></script>
+    <script src="assets/js/validaciones.js"></script>
     <script>
         window.onload = function() {
             iniciarValidacionesEditarPerfil();

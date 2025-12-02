@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             filter: invert(1);
         }
     </style>
-    <script src="../js/validaciones.js"></script>
+    <script src="../assets/js/validaciones.js"></script>
 </head>
 <body>
 
